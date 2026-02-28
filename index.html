@@ -41,6 +41,28 @@
 <body>
 <div id="root"></div>
 <script type="text/babel">
+// CI Point Initial Data
+const CI_INIT_CATS = ["Level 1","Level 2","Level 3(RIE)","Level 4(VSM)","SIO","SP","5S+","RIE Leader","Six Sigma","Ss Leader","CFT/TFT","Champion","Licence","교환"];
+const CI_INIT_DEPTS = ["CI/EHS","CI/EHS/Utility","CM/L","ENG","Finance","GM","HR","ME","MFG","PM","Plant Mnanger","QM","SCM","Sales"];
+const CI_INIT_RAW = [["장복기","CI/EHS/Utility","SIO",35.5],["장복기","CI/EHS/Utility","SP",0.5],["장복기","CI/EHS/Utility","5S+",7.0],["장복기","CI/EHS/Utility","Champion",1.0],["박재원","ENG","SIO",15.5],["박재원","ENG","5S+",13.0],["박재원","ENG","Champion",1.0],["이세민","CM/L","SIO",27.5],["이세민","CM/L","SP",1.0],["김용호","ME","Level 2",3.0],["김용호","ME","Level 3(RIE)",1.0],["김용호","ME","SIO",10.5],["김용호","ME","SP",7.0],["김용호","ME","Champion",1.0],["곽정흠","ME","Level 2",1.0],["곽정흠","ME","Level 3(RIE)",1.0],["곽정흠","ME","SIO",11.0],["곽정흠","ME","SP",3.0],["곽정흠","ME","Champion",1.0],["류정식","MFG","Level 3(RIE)",2.0],["류정식","MFG","SIO",7.0],["류정식","MFG","SP",1.0],["류정식","MFG","5S+",7.0],["최상범","SCM","SIO",15.0],["최상범","SCM","SP",1.0],["박인희","CI/EHS","Level 3(RIE)",2.0],["박인희","CI/EHS","SIO",10.5],["박인희","CI/EHS","Champion",3.0],["유성규","ME","Level 2",2.0],["유성규","ME","Level 3(RIE)",2.0],["유성규","ME","SIO",5.0],["유성규","ME","SP",2.5],["유성규","ME","5S+",3.0],["유성규","ME","Champion",1.0],["박순동","ME","Level 2",2.0],["박순동","ME","Level 3(RIE)",1.0],["박순동","ME","SIO",3.0],["박순동","ME","SP",4.5],["박순동","ME","RIE Leader",2.0],["박순동","ME","Champion",2.0],["이어은","QM","Level 3(RIE)",1.0],["이어은","QM","SIO",10.0],["이어은","QM","SP",1.0],["이어은","QM","Champion",1.0],["이병열","SCM","SIO",7.5],["이병열","SCM","5S+",5.0],["황숙향","MFG","SIO",5.5],["황숙향","MFG","SP",4.0],["황숙향","MFG","5S+",3.0],["황숙향","MFG","교환",-10.0],["최승준","QM","SIO",2.0],["최승준","QM","5S+",9.0],["김혜민(M)","MFG","SIO",4.0],["김혜민(M)","MFG","SP",4.0],["김혜민(M)","MFG","5S+",2.0],["윤주승","ENG","SIO",4.0],["윤주승","ENG","5S+",6.0],["김나영","MFG","Level 3(RIE)",1.0],["김나영","MFG","SIO",4.0],["김나영","MFG","5S+",4.0],["김인수","ME","Level 2",1.0],["김인수","ME","SIO",2.0],["김인수","ME","RIE Leader",2.0],["김인수","ME","Champion",2.0],["김인수","ME","Licence",2.0],["정동린","MFG","Level 3(RIE)",3.0],["정동린","MFG","SIO",2.0],["정동린","MFG","SP",1.0],["정동린","MFG","5S+",3.0],["안병선","MFG","Level 3(RIE)",1.0],["안병선","MFG","SIO",2.5],["안병선","MFG","RIE Leader",2.0],["안병선","MFG","Champion",1.0],["안병선","MFG","Licence",2.0],["김성웅","MFG","Level 3(RIE)",1.0],["김성웅","MFG","SIO",3.0],["김성웅","MFG","SP",2.0],["김성웅","MFG","5S+",2.0],["최용환","MFG","SIO",4.0],["최용환","MFG","SP",4.0],["황상일","MFG","SIO",3.0],["황상일","MFG","SP",5.0],["허윤행","SCM","SIO",2.5],["허윤행","SCM","RIE Leader",2.0],["허윤행","SCM","Champion",3.0],["권미정","MFG","Level 3(RIE)",2.0],["권미정","MFG","SIO",2.0],["권미정","MFG","SP",1.0],["권미정","MFG","5S+",2.0],["김동현","MFG","SIO",5.0],["김동현","MFG","SP",2.0],["정성신","MFG","SIO",4.0],["정성신","MFG","SP",3.0],["정혜훈","HR","SIO",7.0],["박유진","QM","Level 3(RIE)",1.0],["박유진","QM","SIO",3.5],["박유진","QM","Champion",2.0],["박춘성","MFG","SIO",5.0],["박춘성","MFG","SP",0.5],["박춘성","MFG","5S+",1.0],["유해인","SCM","SIO",2.0],["유해인","SCM","5S+",4.0],["정다영","MFG","SIO",3.0],["정다영","MFG","SP",1.0],["정다영","MFG","5S+",2.0],["배정열","ME","Level 3(RIE)",1.0],["배정열","ME","SIO",1.5],["배정열","ME","Champion",3.0],["윤세영","CM/L","Level 3(RIE)",1.0],["윤세영","CM/L","SIO",0.5],["윤세영","CM/L","RIE Leader",2.0],["윤세영","CM/L","Champion",2.0],["김기웅","ENG","SIO",1.0],["김기웅","ENG","5S+",4.0],["김숙경","MFG","SIO",2.0],["김숙경","MFG","SP",3.0],["김욱광","MFG","Level 3(RIE)",1.0],["김욱광","MFG","SP",4.0],["박승권","ENG","SIO",1.0],["박승권","ENG","5S+",4.0],["박은숙","MFG","SIO",2.0],["박은숙","MFG","SP",3.0],["신기한","Sales","SIO",5.0],["이상건","ENG","SIO",4.0],["이상건","ENG","Champion",1.0],["이승현","MFG","Level 3(RIE)",1.0],["이승현","MFG","RIE Leader",2.0],["이승현","MFG","Licence",2.0],["임혜윰","MFG","Level 3(RIE)",3.0],["임혜윰","MFG","SIO",2.0],["정지호","MFG","Level 3(RIE)",1.0],["정지호","MFG","SIO",2.0],["정지호","MFG","SP",2.0],["홍윤정","HR","SIO",3.0],["홍윤정","HR","Champion",2.0],["신대승","SCM","Level 3(RIE)",3.0],["신대승","SCM","SIO",1.5],["김기중","QM","Level 3(RIE)",1.0],["김기중","QM","Champion",3.0],["김상숙","MFG","Level 3(RIE)",2.0],["김상숙","MFG","SIO",2.0],["김재순","ENG","SIO",4.0],["김태균","QM","Level 3(RIE)",2.0],["김태균","QM","SIO",2.0],["박준홍","QM","Level 3(RIE)",1.0],["박준홍","QM","SIO",3.0],["이승손","SCM","Level 3(RIE)",1.0],["이승손","SCM","Champion",3.0],["이호인","MFG","Level 3(RIE)",1.0],["이호인","MFG","SIO",2.0],["이호인","MFG","SP",1.0],["조문현","QM","Level 3(RIE)",2.0],["조문현","QM","SIO",1.0],["조문현","QM","Champion",1.0],["김재완","ENG","Level 3(RIE)",1.0],["김재완","ENG","SIO",2.5],["박영길","HR","SIO",0.5],["박영길","HR","Champion",3.0],["김한범","ENG","Level 3(RIE)",1.0],["김한범","ENG","SIO",2.0],["변지욱","SCM","SIO",1.0],["변지욱","SCM","5S+",2.0],["엄인순","MFG","Level 3(RIE)",1.0],["엄인순","MFG","SP",2.0],["이동욱","MFG","SIO",1.0],["이동욱","MFG","SP",2.0],["이유진","QM","SIO",1.0],["이유진","QM","5S+",2.0],["정은주","CI/EHS/Utility","Champion",3.0],["정필영","ENG","SIO",3.0],["김동영","MFG","SIO",1.5],["김동영","MFG","5S+",1.0],["김현서","SCM","Level 3(RIE)",1.0],["김현서","SCM","SIO",1.5],["김민성","Finance","SIO",2.0],["맹지수","MFG","SIO",2.0],["이종태","Finance","SIO",1.0],["이종태","Finance","Champion",1.0],["정광용","Finance","SIO",2.0],["정수지","Finance","SIO",2.0],["조화진","Finance","SIO",2.0],["허수정","SCM","Level 3(RIE)",1.0],["허수정","SCM","SIO",1.0],["황재면","Plant Mnanger","Champion",2.0],["구본석","Finance","SIO",1.5],["김일","ENG","SIO",0.5],["김일","ENG","Champion",1.0],["서명원","SCM","SIO",1.5],["이재일","CM/L","SIO",1.5],["정석모","ENG","SIO",1.5],["김보경(P)","PM","Champion",1.0],["김보경(S)","SCM","Champion",1.0],["김혜민(C)","CM/L","Level 3(RIE)",1.0],["방재식","Sales","Level 3(RIE)",1.0],["송승현","ENG","SIO",1.0],["송지현","Sales","SIO",1.0],["윤종성","MFG","SP",1.0],["이승찬","PM","Champion",1.0],["이승훈","Sales","Level 3(RIE)",1.0],["정동명","ENG","SIO",1.0],["황성림","Sales","SIO",1.0]];
+const CI_INIT_DATA = CI_INIT_RAW.map((r,i)=>({id:"ci_"+i,name:r[0],dept:r[1],category:r[2],score:r[3],date:"2025-01-01",memo:r[3]<0?"포인트 교환":""}));
+const CI_CRITERIA=[
+  {no:1,cat:'참가 포인트',item:'첫 CI activities 참여시 지급',before:'-',all:2,leader:null,note:'신설'},
+  {no:2,cat:'SIO',item:'Near Miss/Unsafety Condition 제출',before:'1',all:1,leader:0.5,note:'차등지급'},
+  {no:3,cat:'5S+',item:'Best 사원 선정, 각 부서, 현장 매월 1명',before:'2',all:2,leader:null,note:null},
+  {no:4,cat:'제안제도',item:'제안 제출',before:'1',all:1,leader:0.5,note:'차등지급'},
+  {no:5,cat:null,item:'개선안 제출 및 채택시',before:'-',all:1,leader:0.5,note:'신설/차등지급'},
+  {no:6,cat:'SIO/제안 개선 실행',item:'조치자 1인',before:'-',all:0.5,leader:null,note:'신설'},
+  {no:7,cat:'Kaizen (Level 1&2)',item:'Kaizen 양식 제출 - 개인, 팀',before:'1',all:1,leader:null,note:null},
+  {no:8,cat:'RIE (Level 3)',item:'RIE 참여 - 팀리더',before:'2',all:2,leader:null,note:null},
+  {no:9,cat:'RIE (Level 3)',item:'RIE 참여 - 팀원',before:'1',all:1,leader:null,note:null},
+  {no:10,cat:'RIE (Level 3)',item:'RIE 참여 - 현장 의견 제출',before:'-',all:1,leader:null,note:'신설'},
+  {no:11,cat:'Six Sigma (Level 4)',item:'Six Sigma - 팀리더',before:'3',all:3,leader:null,note:null},
+  {no:12,cat:'Six Sigma (Level 4)',item:'Six Sigma - 팀원',before:'2',all:2,leader:null,note:null},
+  {no:13,cat:'CFT, TF Team',item:'Team 활동 레포트 제출',before:'1',all:1,leader:null,note:null},
+  {no:14,cat:'OpA, CIF, ELSS, MESH\n현장 5S+ Audit',item:'Element 챔피언 및 담당자',before:'1',all:1,leader:null,note:null},
+  {no:15,cat:'Licence',item:'자격 획득\nLTL, LTE, Six Sigma belt (YB,GB,BB), EMSE',before:'2',all:2,leader:null,note:null}
+];
 const{useState,useEffect,useRef,useMemo,useCallback}=React;
 const Icon=({name,size=24,className=""})=>{const ref=useRef();useEffect(()=>{if(ref.current&&lucide.icons[name]){ref.current.innerHTML='';const i=lucide.createElement(lucide.icons[name]);i.setAttribute('width',size);i.setAttribute('height',size);if(className)i.setAttribute('class',className);ref.current.appendChild(i);}},[name,size,className]);return <span ref={ref} className="inline-flex items-center justify-center"/>};
 const S={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
@@ -107,7 +129,7 @@ function GenericList({items,setItems,type}){
   return(<div className="slide-up"><div className="relative mb-4"><div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Icon name="Search" size={18}/></div><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="검색..." className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm"/></div><p className="text-sm text-gray-500 mb-3">총 <span className="font-bold text-blue-600">{filtered.length}</span>건</p>{filtered.length===0?(<div className="text-center py-16 text-gray-400"><Icon name="Inbox" size={48} className="mx-auto mb-3 text-gray-300"/><p>데이터가 없습니다</p></div>):(<div className="space-y-3">{filtered.map(item=>{const mainText=item.content||item.finding||item.description||'';const td=item.topicId?PI_TOPICS.find(t=>t.id===item.topicId):null;return(<div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover"><div className="p-4 cursor-pointer" onClick={()=>setEid(eid===item.id?null:item.id)}><div className="flex items-start justify-between mb-2"><div className="flex items-center gap-2 flex-wrap">{item.observationType&&<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.observationType==='positive'?'bg-green-100 text-green-700':'bg-orange-100 text-orange-700'}`}>{item.observationType==='positive'?'긍정적 행동':'안전 이슈'}</span>}{item.status&&<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc(item.status)}`}>{item.status}</span>}<span className="text-xs text-gray-400">{item.date}</span></div><Icon name={eid===item.id?"ChevronUp":"ChevronDown"} size={18} className="text-gray-400 flex-shrink-0"/></div>{td&&<p className="text-xs font-semibold text-blue-600 mb-1">{td.title} · {td.titleKo}</p>}<p className="text-sm font-medium text-gray-800 line-clamp-2">{mainText}</p><div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">{item.name&&<span className="flex items-center gap-1"><Icon name="User" size={12}/>{item.name}</span>}{item.department&&<span className="flex items-center gap-1"><Icon name="Building2" size={12}/>{item.department}</span>}{item.dept&&<span className="flex items-center gap-1"><Icon name="Building2" size={12}/>{item.dept}</span>}{item.module&&<span className="flex items-center gap-1"><Icon name="Box" size={12}/>{item.module}</span>}{item.dueDate&&<span className="flex items-center gap-1"><Icon name="Calendar" size={12}/>{item.dueDate}</span>}</div></div>{eid===item.id&&(<div className="border-t border-gray-100 p-4 bg-gray-50 fade-in"><div className="space-y-2 text-sm">{td&&<div className="p-3 bg-blue-50 rounded-lg text-xs text-blue-800 mb-2"><p className="font-medium mb-1">{td.en}</p><p className="text-blue-600">{td.ko}</p></div>}{item.actionItem&&<div><span className="text-gray-500">Action:</span> <span className="font-medium">{item.actionItem}</span></div>}{item.closeDate&&<div><span className="text-gray-500">Close:</span> <span className="font-medium">{item.closeDate}</span></div>}{item.remark&&<div><span className="text-gray-500">Remark:</span> <span className="font-medium">{item.remark}</span></div>}{item.riskLevel&&<div><span className="text-gray-500">Risk:</span> <span className="font-medium">{item.riskLevel}</span></div>}</div><button onClick={()=>del(item.id)} className="mt-3 text-red-500 text-sm flex items-center gap-1 hover:text-red-700"><Icon name="Trash2" size={14}/> 삭제</button></div>)}</div>)})}</div>)}</div>)}
 
 // ===== MAIN APP =====
-function App(){const[screen,setScreen]=useState('home');const handleSelect=(id)=>{setScreen(id)};if(screen==='home')return<HomeScreen onSelect={handleSelect}/>;if(screen==='pi')return<PIApp onBack={()=>setScreen('home')}/>;if(screen==='gemba')return<GembaApp onBack={()=>setScreen('home')}/>;if(screen==='wra')return<WRAApp onBack={()=>setScreen('home')}/>;if(screen==='safety')return<SafetyApp onBack={()=>setScreen('home')}/>;if(screen==='sio')return<EmbedApp title="SIO" url="https://eatonkorea.github.io/eatonsio/" gradient="linear-gradient(135deg,#ff6b6b,#ee5a24)" emoji="🚨" onBack={()=>setScreen('home')}/>;if(screen==='lgemba')return<EmbedApp title="Leadership Gemba Walk" url="https://eatonkorea.github.io/gembawalk/" gradient="linear-gradient(135deg,#a18cd1,#fbc2eb)" emoji="👥" onBack={()=>setScreen('home')}/>;if(screen==='patrol')return<PlaceholderApp title="Safety Patrol" icon="Eye" color="#0ea5e9" onBack={()=>setScreen('home')}/>;if(screen==='fives')return<PlaceholderApp title="5S+" icon="Sparkles" color="#f59e0b" onBack={()=>setScreen('home')}/>;if(screen==='ci')return<PlaceholderApp title="CI Point" icon="Target" color="#10b981" onBack={()=>setScreen('home')}/>;}
+function App(){const[screen,setScreen]=useState('home');const handleSelect=(id)=>{setScreen(id)};if(screen==='home')return<HomeScreen onSelect={handleSelect}/>;if(screen==='pi')return<PIApp onBack={()=>setScreen('home')}/>;if(screen==='gemba')return<GembaApp onBack={()=>setScreen('home')}/>;if(screen==='wra')return<WRAApp onBack={()=>setScreen('home')}/>;if(screen==='safety')return<SafetyApp onBack={()=>setScreen('home')}/>;if(screen==='sio')return<EmbedApp title="SIO" url="https://eatonkorea.github.io/eatonsio/" gradient="linear-gradient(135deg,#ff6b6b,#ee5a24)" emoji="🚨" onBack={()=>setScreen('home')}/>;if(screen==='lgemba')return<EmbedApp title="Leadership Gemba Walk" url="https://eatonkorea.github.io/gembawalk/" gradient="linear-gradient(135deg,#a18cd1,#fbc2eb)" emoji="👥" onBack={()=>setScreen('home')}/>;if(screen==='patrol')return<PlaceholderApp title="Safety Patrol" icon="Eye" color="#0ea5e9" onBack={()=>setScreen('home')}/>;if(screen==='fives')return<PlaceholderApp title="5S+" icon="Sparkles" color="#f59e0b" onBack={()=>setScreen('home')}/>;if(screen==='ci')return<CIPointApp onBack={()=>setScreen('home')}/>;}
 function EmbedApp({title,url,onBack,gradient='linear-gradient(135deg,#667eea,#764ba2)',emoji='📱'}){const[loading,setLoading]=useState(true);return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f0f4ff'}}><div style={{flexShrink:0,padding:'10px 16px',background:gradient,display:'flex',alignItems:'center',gap:'10px',zIndex:10}}><button onClick={onBack} style={{background:'rgba(255,255,255,.15)',border:'none',cursor:'pointer',color:'#fff',padding:'4px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'10px',width:'34px',height:'34px'}}><Icon name="ArrowLeft" size={20}/></button><span style={{fontSize:'24px'}}>{emoji}</span><h1 style={{fontSize:'15px',fontWeight:800,margin:0,color:'#fff'}}>{title}</h1></div>{loading&&<div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',textAlign:'center',zIndex:5}}><div style={{width:'36px',height:'36px',border:'3px solid #e5e7eb',borderTop:'3px solid #667eea',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 8px'}}/><p style={{fontSize:'13px',color:'#999'}}>로딩 중...</p></div>}<iframe src={url} onLoad={()=>setLoading(false)} style={{flex:1,border:'none',width:'100%'}} allow="clipboard-write"/></div>)}
 function PlaceholderApp({title,icon,color,onBack}){return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f9fafb'}}><div style={{padding:'16px',background:'#fff',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:'10px'}}><button onClick={onBack} style={{background:'none',border:'none',cursor:'pointer',color:'#888',padding:'4px'}}><Icon name="ArrowLeft" size={20}/></button><div style={{width:'32px',height:'32px',background:color,borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name={icon} size={18} className="text-white"/></div><h1 style={{fontSize:'16px',fontWeight:700,margin:0}}>{title}</h1></div><div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:'12px'}}><div style={{width:'64px',height:'64px',background:color+'20',borderRadius:'16px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name={icon} size={32} style={{color}}/></div><p style={{fontSize:'16px',fontWeight:600,color:'#333'}}>{title}</p><p style={{fontSize:'13px',color:'#999'}}>준비 중입니다</p></div></div>)}
 
@@ -119,12 +141,12 @@ function HomeScreen({onSelect}){
     {id:'gemba',emoji:'📋',label:'부서별\nGemba Walk',sub:'현장 점검 관리',gradient:'linear-gradient(135deg,#11998e,#38ef7d)',devices:['PC','Mobile']},
     {id:'lgemba',emoji:'👥',label:'Leadership\nGemba Walk',sub:'리더십 현장 점검',gradient:'linear-gradient(135deg,#a18cd1,#fbc2eb)',devices:['PC','Mobile']},
     {id:'wra',emoji:'📊',label:'WRA',sub:'Workstation Risk Assessment',gradient:'linear-gradient(135deg,#fa709a,#fee140)',devices:['PC']},
-    {id:'safety',emoji:'🛡️',label:'Safety\nTracker',sub:'안전 현황 대시보드',gradient:'linear-gradient(135deg,#667eea,#764ba2)',devices:['PC']}
+    {id:'safety',emoji:'🛡️',label:'Safety\nTracker',sub:'안전 현황 대시보드',gradient:'linear-gradient(135deg,#667eea,#764ba2)',devices:['PC']},
+    {id:'ci',emoji:'🎯',label:'CI Point',sub:'Continuous Improvement',gradient:'linear-gradient(135deg,#f59e0b,#f97316)',devices:['PC','Mobile']}
   ];
   const dis=[
     {id:'patrol',emoji:'👁️',label:'Safety Patrol',sub:'안전 순찰 점검'},
-    {id:'fives',emoji:'✨',label:'5S+',sub:'5S Plus 활동'},
-    {id:'ci',emoji:'🎯',label:'CI Point',sub:'Continuous Improvement'}
+    {id:'fives',emoji:'✨',label:'5S+',sub:'5S Plus 활동'}
   ];
   return(<div className="min-h-screen" style={{background:'#f0f4ff'}}>
     {/* Hero Banner */}
@@ -672,6 +694,875 @@ function TableScaler({children}){
     return()=>{clearTimeout(t1);clearTimeout(t2);window.removeEventListener('resize',calc)};
   },[]);
   return(<div ref={wrapRef} style={{flex:1,overflowY:'auto',overflowX:'hidden'}}><div ref={tblRef} style={{width:'max-content',...style}}>{children}</div></div>);
+}
+// ===== Product Manager =====
+function ProductManager({products,setProducts}){
+  const[name,setName]=useState('');
+  const[points,setPoints]=useState('');
+  const[photo,setPhoto]=useState('');
+  const[editId,setEditId]=useState(null);
+
+  const handlePhoto=(e)=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=(ev)=>setPhoto(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const save=()=>{
+    if(!name.trim()||!points){alert('상품명과 포인트를 입력해주세요.');return;}
+    if(editId){
+      setProducts(products.map(p=>p.id===editId?{...p,name:name.trim(),points:Number(points),photo}:p));
+      ciApi.post({action:'updateProduct',id:editId,name:name.trim(),points:Number(points),photo}).then(res=>{
+        if(res&&res.photo!==undefined)setProducts(prev=>prev.map(p=>p.id===editId?{...p,photo:res.photo}:p));
+      });
+      setEditId(null);
+    }else{
+      const newId=Date.now().toString();
+      setProducts([...products,{id:newId,name:name.trim(),points:Number(points),photo}]);
+      ciApi.post({action:'addProduct',name:name.trim(),points:Number(points),photo}).then(res=>{
+        if(res&&res.id)setProducts(prev=>prev.map(p=>p.id===newId?{...p,id:res.id,photo:res.photo||p.photo}:p));
+      });
+    }
+    setName('');setPoints('');setPhoto('');
+  };
+
+  const edit=(p)=>{setEditId(p.id);setName(p.name);setPoints(String(p.points));setPhoto(p.photo||'');};
+  const del=(id)=>{if(confirm('삭제?')){setProducts(products.filter(p=>p.id!==id));ciApi.post({action:'deleteProduct',id})}};
+
+  return(<div>
+    <div style={{display:'flex',gap:'8px',marginBottom:'10px',flexWrap:'wrap'}}>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="상품명 *" style={{flex:'1 1 120px',padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+      <input type="number" value={points} onChange={e=>setPoints(e.target.value)} placeholder="포인트 *" style={{width:'80px',padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+      <label style={{padding:'8px 12px',border:'1px dashed #ddd',borderRadius:'8px',fontSize:'12px',color:'#888',cursor:'pointer',display:'flex',alignItems:'center',gap:'4px',background:photo?'#f0fdf4':'#fff'}}>
+        {photo?'✅ 사진':'📷 사진'}
+        <input type="file" accept="image/*" onChange={handlePhoto} style={{display:'none'}}/>
+      </label>
+      <button onClick={save} style={{padding:'8px 14px',background:editId?'#f59e0b':'#2563eb',color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:700,cursor:'pointer'}}>{editId?'수정':'등록'}</button>
+      {editId&&<button onClick={()=>{setEditId(null);setName('');setPoints('');setPhoto('')}} style={{padding:'8px 10px',background:'#e5e7eb',border:'none',borderRadius:'8px',fontSize:'12px',cursor:'pointer'}}>취소</button>}
+    </div>
+    {products.length>0&&(
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:'8px'}}>
+        {products.map(p=>(
+          <div key={p.id} style={{background:'#f9fafb',borderRadius:'10px',overflow:'hidden',border:'1px solid #e5e7eb'}}>
+            {p.photo?(
+              <div style={{width:'100%',height:'80px',overflow:'hidden'}}><img src={p.photo} style={{width:'100%',height:'100%',objectFit:'cover'}}/></div>
+            ):(
+              <div style={{width:'100%',height:'80px',background:'linear-gradient(135deg,#f0f4ff,#e8f0fe)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'28px'}}>🎁</div>
+            )}
+            <div style={{padding:'8px'}}>
+              <div style={{fontSize:'11px',fontWeight:700,marginBottom:'2px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
+              <div style={{fontSize:'13px',fontWeight:800,color:'#f59e0b'}}>{p.points}P</div>
+              <div style={{display:'flex',gap:'4px',marginTop:'4px'}}>
+                <button onClick={()=>edit(p)} style={{flex:1,padding:'4px',background:'#e5e7eb',border:'none',borderRadius:'4px',fontSize:'10px',cursor:'pointer'}}>수정</button>
+                <button onClick={()=>del(p.id)} style={{flex:1,padding:'4px',background:'#fee2e2',color:'#b91c1c',border:'none',borderRadius:'4px',fontSize:'10px',cursor:'pointer'}}>삭제</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>);
+}
+// ===== CI Point =====
+// ★ 배포 후 여기에 GAS 웹앱 URL 입력 ★
+const CI_GAS_URL = 'https://script.google.com/macros/s/AKfycbyA3JFkjWnrOJKBRUIZWvW0pqC-9xtSbeetlZ1hszzNVW97o9DofRmuoczt5v2dIO2S/exec';
+
+const ciApi={
+  async get(type='all'){
+    if(!CI_GAS_URL)return null;
+    try{const r=await fetch(CI_GAS_URL+'?type='+type);return await r.json();}catch(e){console.error('CI API get error:',e);return null;}
+  },
+  async post(body){
+    if(!CI_GAS_URL)return null;
+    try{const r=await fetch(CI_GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}catch(e){console.error('CI API post error:',e);return null;}
+  }
+};
+
+function CIPointApp({onBack}){
+  const curY=new Date().getFullYear();
+  const[year,setYear]=useState(new Date().getFullYear());
+  const[activeTab,setActiveTab]=useState('dashboard');
+  const[entries,setEntries]=useState(()=>{
+    // GAS 연결 후 초기 하드코딩 데이터 제거 (1회성)
+    if(!S.get('ci_cleaned',false)){S.set('ci_cleaned',true);S.set('ci_entries',[]);return[];}
+    return S.get('ci_entries',[]);
+  });
+  const[categories,setCategories]=useState(()=>S.get('ci_categories',CI_INIT_CATS));
+  const[departments,setDepartments]=useState(()=>S.get('ci_departments',CI_INIT_DEPTS));
+  const[showSettings,setShowSettings]=useState(false);
+  const[isAdmin,setIsAdmin]=useState(false);
+  const[loading,setLoading]=useState(false);
+  const[synced,setSynced]=useState(!CI_GAS_URL);
+  const ADMIN_PW='eaton12!@';
+
+  // localStorage 캐시 (빠른 로딩용)
+  useEffect(()=>{S.set('ci_entries',entries)},[entries]);
+  useEffect(()=>{S.set('ci_categories',categories)},[categories]);
+  useEffect(()=>{S.set('ci_departments',departments)},[departments]);
+
+  // GAS에서 전체 데이터 로딩
+  useEffect(()=>{
+    if(!CI_GAS_URL)return;
+    setLoading(true);
+    ciApi.get('all').then(res=>{
+      if(res&&res.success){
+        if(res.points&&res.points.length>0)setEntries(res.points);
+        if(res.products&&res.products.length>0)setProducts(res.products);
+        if(res.exchanges&&res.exchanges.length>0)setExchangeHistory(res.exchanges);
+        if(res.categories&&res.categories.length>0)setCategories(res.categories);
+        if(res.departments&&res.departments.length>0)setDepartments(res.departments);
+        setSynced(true);
+      }
+      setLoading(false);
+    });
+  },[]);
+
+  const catColors=['#3b82f6','#8b5cf6','#06b6d4','#0891b2','#f59e0b','#10b981','#22c55e','#e879f9','#6366f1','#14b8a6','#ec4899','#f97316','#84cc16','#64748b'];
+  const getCatColor=(i)=>catColors[i%catColors.length];
+
+  // Products
+  const[products,setProducts]=useState(()=>S.get('ci_products',[]));
+  const[exchangeHistory,setExchangeHistory]=useState(()=>S.get('ci_exchange_history',[]));
+  useEffect(()=>{S.set('ci_products',products)},[products]);
+  useEffect(()=>{S.set('ci_exchange_history',exchangeHistory)},[exchangeHistory]);
+
+  // Filtered entries by year
+  const yearEntries=useMemo(()=>entries.filter(e=>{
+    if(!e.date)return false;
+    const m=e.date.match(/(\d{4})/);
+    return m&&parseInt(m[1])===year;
+  }),[entries,year]);
+
+  // Aggregate per person
+  const rankings=useMemo(()=>{
+    const map={};
+    yearEntries.forEach(e=>{
+      const key=e.name;
+      if(!map[key])map[key]={name:e.name,dept:e.dept||'',totals:{},exchange:0};
+      if(e.category==='교환'){
+        map[key].exchange+=Math.abs(Number(e.score)||0);
+      }else if(e.category==='교환취소'){
+        map[key].exchange-=Math.abs(Number(e.score)||0);
+      }else{
+        if(!map[key].totals[e.category])map[key].totals[e.category]=0;
+        map[key].totals[e.category]+=Number(e.score)||0;
+      }
+      if(e.dept)map[key].dept=e.dept;
+    });
+    return Object.values(map).map(p=>{
+      p.exchange=Math.max(0,p.exchange);
+      const gross=Object.values(p.totals).reduce((a,b)=>a+b,0);
+      return{...p,gross,total:gross-p.exchange};
+    }).sort((a,b)=>b.gross-a.gross);
+  },[yearEntries]);
+
+  const top30=rankings.slice(0,30);
+  const maxScore=top30.length>0?top30[0].gross:0;
+
+  // === Entry Form ===
+  const[formName,setFormName]=useState('');
+  const[formDept,setFormDept]=useState('');
+  const[formCat,setFormCat]=useState('');
+  const[formScore,setFormScore]=useState('');
+  const[formDate,setFormDate]=useState(new Date().toISOString().slice(0,10));
+  const[formMemo,setFormMemo]=useState('');
+  const[editId,setEditId]=useState(null);
+
+  const addEntry=()=>{
+    if(!formName.trim()||!formCat||!formScore){alert('이름, 카테고리, 점수를 입력해주세요.');return;}
+    const item={name:formName.trim(),dept:formDept,category:formCat,score:Number(formScore),date:formDate,memo:formMemo};
+    if(editId){
+      setEntries(entries.map(e=>e.id===editId?{...e,...item}:e));
+      ciApi.post({action:'updatePoint',id:editId,...item});
+      setEditId(null);
+    }else{
+      const newId=Date.now().toString();
+      setEntries([...entries,{id:newId,...item}]);
+      ciApi.post({action:'addPoint',...item}).then(res=>{if(res&&res.id)setEntries(prev=>prev.map(e=>e.id===newId?{...e,id:res.id}:e))});
+    }
+    setFormName('');setFormScore('');setFormMemo('');
+  };
+  const editEntry=(e)=>{setEditId(e.id);setFormName(e.name);setFormDept(e.dept||'');setFormCat(e.category);setFormScore(String(e.score));setFormDate(e.date);setFormMemo(e.memo||'');setActiveTab('manage');};
+  const delEntry=(id)=>{if(confirm('삭제하시겠습니까?')){setEntries(entries.filter(e=>e.id!==id));ciApi.post({action:'deletePoint',id})}};
+
+  // === 교환 승인/취소 (관리자) ===
+  const approveExchange=(h)=>{
+    if(!confirm(`${h.name}님에게 "${h.product}" 지급완료 하시겠습니까?`))return;
+    setExchangeHistory(prev=>prev.map(ex=>ex.id===h.id?{...ex,status:'완료'}:ex));
+    ciApi.post({action:'approveExchange',id:h.id});
+  };
+  const cancelExchange=(h)=>{
+    if(!confirm(`${h.name}님의 "${h.product}" 교환을 취소하시겠습니까?\n포인트가 환불됩니다.`))return;
+    const now=new Date().toISOString().slice(0,10);
+    setExchangeHistory(prev=>prev.filter(ex=>ex.id!==h.id));
+    // 포인트 환불
+    setEntries(prev=>[...prev,{id:Date.now().toString(),name:h.name,dept:h.dept,category:'교환취소',score:h.points,date:now,memo:`교환취소: ${h.product}`}]);
+    ciApi.post({action:'cancelExchange',id:h.id});
+  };
+  // === Excel Import ===
+  const PIVOT_CATS=['Level 1','Level 2','Level 3(RIE)','Level 4(VSM)','SIO','SP','5S+','RIE Leader','Six Sigma','Ss Leader','CFT/TFT','Champion','Licence'];
+  const normH=(s)=>String(s||'').replace(/[\s\r\n]+/g,' ').replace(/[,\/]/g,'').trim().toLowerCase();
+  const handleExcel=(e)=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      try{
+        const wb=XLSX.read(ev.target.result,{type:'binary'});
+        const sheetName=wb.SheetNames.find(s=>s.toLowerCase().includes('total'))||wb.SheetNames[0];
+        const ws=wb.Sheets[sheetName];
+        const raw=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        
+        // 헤더 행 찾기
+        let headerRow=-1;
+        for(let i=0;i<Math.min(10,raw.length);i++){
+          const row=raw[i].map(c=>normH(c));
+          if(row.includes('부서')&&row.includes('이름')){headerRow=i;break;}
+        }
+        
+        const newEntries=[];
+        const ts=Date.now();
+        const today=new Date().toISOString().slice(0,10);
+        
+        if(headerRow>=0){
+          // ★ 피벗 형식
+          const headers=raw[headerRow].map(c=>String(c||'').replace(/[\r\n]+/g,' ').trim());
+          const headersNorm=headers.map(h=>normH(h));
+          const deptIdx=headersNorm.indexOf('부서');
+          const nameIdx=headersNorm.indexOf('이름');
+          
+          // 카테고리 컬럼 매핑 (유연한 매칭)
+          const catCols=[];
+          PIVOT_CATS.forEach(cat=>{
+            const cn=normH(cat);
+            let idx=headersNorm.findIndex(h=>h===cn);
+            // 부분 매칭 시도
+            if(idx<0)idx=headersNorm.findIndex(h=>h.includes(cn)||cn.includes(h));
+            // 특수 케이스: "CFT, TFT" or "CFT/TFT" or "CFT  TFT"
+            if(idx<0&&cat==='CFT/TFT')idx=headersNorm.findIndex(h=>h.includes('cft')&&h.includes('tft'));
+            if(idx<0&&cat==='Level 3(RIE)')idx=headersNorm.findIndex(h=>h.includes('level 3')&&h.includes('rie'));
+            if(idx<0&&cat==='Level 4(VSM)')idx=headersNorm.findIndex(h=>h.includes('level 4')&&h.includes('vsm'));
+            if(idx<0&&cat==='RIE Leader')idx=headersNorm.findIndex(h=>h.includes('rie')&&h.includes('leader'));
+            if(idx<0&&cat==='Ss Leader')idx=headersNorm.findIndex(h=>h.includes('ss')&&h.includes('leader'));
+            if(idx<0&&cat==='Six Sigma')idx=headersNorm.findIndex(h=>h.includes('six')&&h.includes('sigma'));
+            if(idx>=0)catCols.push({cat,idx});
+          });
+          
+          // 교환 컬럼
+          const exchIdx=headersNorm.findIndex(h=>h==='교환');
+          
+          console.log('Headers found:',headers);
+          console.log('Cat columns mapped:',catCols.map(c=>c.cat+' → col '+c.idx));
+          
+          for(let i=headerRow+1;i<raw.length;i++){
+            const row=raw[i];
+            const name=String(row[nameIdx]||'').trim();
+            const dept=String(row[deptIdx]||'').trim();
+            if(!name)continue;
+            
+            catCols.forEach(({cat,idx})=>{
+              const val=Number(row[idx])||0;
+              if(val>0){
+                newEntries.push({id:''+ts+'_'+newEntries.length,name,dept,category:cat,score:val,date:today,memo:''});
+              }
+            });
+            if(exchIdx>=0){
+              const exchVal=Number(row[exchIdx])||0;
+              if(exchVal!==0){
+                newEntries.push({id:''+ts+'_'+newEntries.length,name,dept,category:'교환',score:exchVal<0?exchVal:-exchVal,date:today,memo:'포인트 교환'});
+              }
+            }
+          }
+        }else{
+          // ★ 플랫 형식
+          const data=XLSX.utils.sheet_to_json(ws);
+          data.forEach((row,i)=>{
+            const name=String(row['이름']||row['name']||'').trim();
+            const cat=String(row['카테고리']||row['category']||'').trim();
+            if(!name||!cat)return;
+            newEntries.push({
+              id:''+ts+'_'+i,name,
+              dept:String(row['부서']||row['dept']||''),
+              category:cat,
+              score:Number(row['점수']||row['score'])||0,
+              date:String(row['날짜']||row['date']||today),
+              memo:String(row['메모']||row['memo']||'')
+            });
+          });
+        }
+        
+        if(newEntries.length===0){alert('가져올 데이터가 없습니다.\n엑셀 헤더에 "부서"와 "이름" 컬럼이 있는지 확인해주세요.');return;}
+        setEntries(prev=>[...prev,...newEntries]);
+        ciApi.post({action:'addPoints',items:newEntries});
+        alert(`✅ ${newEntries.length}건 가져왔습니다!`);
+      }catch(err){alert('파일 읽기 오류: '+err.message);}
+    };
+    reader.readAsBinaryString(file);
+    e.target.value='';
+  };
+
+  // === Settings Modal ===
+  const[newCat,setNewCat]=useState('');
+  const[newDept,setNewDept]=useState('');
+
+  const settingsModal=showSettings&&(
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}} onClick={e=>{if(e.target===e.currentTarget)setShowSettings(false)}}>
+      <div style={{background:'#fff',borderRadius:'16px',maxWidth:'500px',width:'100%',maxHeight:'90vh',overflow:'auto',padding:'20px',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'16px'}}>
+          <h2 style={{fontSize:'16px',fontWeight:700,margin:0}}>⚙️ CI Point 설정</h2>
+          <button onClick={()=>setShowSettings(false)} style={{background:'none',border:'none',cursor:'pointer'}}><Icon name="X" size={20}/></button>
+        </div>
+
+        <div style={{marginBottom:'20px'}}>
+          <h3 style={{fontSize:'13px',fontWeight:700,color:'#2563eb',marginBottom:'8px'}}>카테고리 관리</h3>
+          <div style={{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'8px'}}>
+            {categories.map((c,i)=>(
+              <span key={i} style={{display:'inline-flex',alignItems:'center',gap:'4px',padding:'4px 10px',borderRadius:'20px',fontSize:'12px',fontWeight:600,background:getCatColor(i)+'20',color:getCatColor(i),border:`1px solid ${getCatColor(i)}40`}}>
+                <span style={{width:'8px',height:'8px',borderRadius:'50%',background:getCatColor(i)}}/>
+                {c}
+                <button onClick={()=>{if(confirm(`"${c}" 삭제?`))setCategories(categories.filter((_,j)=>j!==i))}} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontSize:'14px',lineHeight:1}}>×</button>
+              </span>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:'6px'}}>
+            <input value={newCat} onChange={e=>setNewCat(e.target.value)} placeholder="새 카테고리" style={{flex:1,padding:'6px 10px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}} onKeyDown={e=>{if(e.key==='Enter'&&newCat.trim()){setCategories([...categories,newCat.trim()]);setNewCat('')}}}/>
+            <button onClick={()=>{if(newCat.trim()){setCategories([...categories,newCat.trim()]);setNewCat('')}}} style={{padding:'6px 14px',background:'#2563eb',color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:600,cursor:'pointer'}}>추가</button>
+          </div>
+        </div>
+
+        <div style={{marginBottom:'20px'}}>
+          <h3 style={{fontSize:'13px',fontWeight:700,color:'#10b981',marginBottom:'8px'}}>부서 관리</h3>
+          <div style={{display:'flex',flexWrap:'wrap',gap:'6px',marginBottom:'8px'}}>
+            {departments.map((d,i)=>(
+              <span key={i} style={{display:'inline-flex',alignItems:'center',gap:'4px',padding:'4px 10px',borderRadius:'20px',fontSize:'12px',fontWeight:600,background:'#f0fdf4',color:'#166534',border:'1px solid #bbf7d0'}}>
+                {d}
+                <button onClick={()=>setDepartments(departments.filter((_,j)=>j!==i))} style={{background:'none',border:'none',cursor:'pointer',color:'#999',fontSize:'14px',lineHeight:1}}>×</button>
+              </span>
+            ))}
+          </div>
+          <div style={{display:'flex',gap:'6px'}}>
+            <input value={newDept} onChange={e=>setNewDept(e.target.value)} placeholder="새 부서" style={{flex:1,padding:'6px 10px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}} onKeyDown={e=>{if(e.key==='Enter'&&newDept.trim()){setDepartments([...departments,newDept.trim()]);setNewDept('')}}}/>
+            <button onClick={()=>{if(newDept.trim()){setDepartments([...departments,newDept.trim()]);setNewDept('')}}} style={{padding:'6px 14px',background:'#10b981',color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:600,cursor:'pointer'}}>추가</button>
+          </div>
+        </div>
+
+        <div style={{padding:'12px',background:'#fef3c7',borderRadius:'8px',border:'1px solid #fbbf24'}}>
+          <h3 style={{fontSize:'12px',fontWeight:700,color:'#92400e',marginBottom:'4px'}}>데이터 초기화</h3>
+          <button onClick={()=>{if(confirm('모든 CI Point 데이터를 삭제하시겠습니까?')){setEntries([]);alert('초기화 완료')}}} style={{padding:'6px 14px',background:'#ef4444',color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:600,cursor:'pointer'}}>전체 데이터 삭제</button>
+        </div>
+
+        <button onClick={()=>setShowSettings(false)} style={{marginTop:'16px',width:'100%',padding:'10px',background:'#2563eb',color:'#fff',border:'none',borderRadius:'8px',fontWeight:700,fontSize:'14px',cursor:'pointer'}}>닫기</button>
+      </div>
+    </div>
+  );
+
+  // === DASHBOARD ===
+  const Dashboard=()=>{
+    const[selPerson,setSelPerson]=useState(null);
+    const[showCriteria,setShowCriteria]=useState(false);
+    const[showAll,setShowAll]=useState(false);
+    const[showShop,setShowShop]=useState(null); // person name for shop
+    const selData=selPerson?rankings.find(r=>r.name===selPerson):null;
+
+    const handleExchange=(product)=>{
+      const person=rankings.find(r=>r.name===showShop);
+      if(!person)return;
+      if(person.total<product.points){alert('포인트가 부족합니다.');return;}
+      if(!confirm(`${person.name}님이 "${product.name}" (${product.points}P) 교환을 신청하시겠습니까?`))return;
+      const now=new Date().toISOString().slice(0,10);
+      const newId=Date.now().toString();
+      // 포인트 즉시 차감
+      setEntries(prev=>[...prev,{id:newId+'_ex',name:person.name,dept:person.dept,category:'교환',score:-product.points,date:now,memo:`상품교환: ${product.name}`}]);
+      // 신청 내역 추가
+      setExchangeHistory(prev=>[...prev,{id:newId,name:person.name,dept:person.dept,product:product.name,points:product.points,date:now,status:'신청'}]);
+      ciApi.post({action:'exchange',name:person.name,dept:person.dept,product:product.name,points:product.points}).then(res=>{
+        if(res&&res.id)setExchangeHistory(prev=>prev.map(h=>h.id===newId?{...h,id:res.id}:h));
+      });
+      alert(`교환 신청 완료! 포인트가 차감되었습니다.\n관리자가 상품 지급 후 완료 처리합니다.`);
+      setShowShop(null);setSelPerson(null);
+    };
+    return(
+    <div style={{padding:'16px',overflow:'auto'}}>
+      {/* Year selector */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'16px'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+          <h2 style={{fontSize:'18px',fontWeight:800,margin:0}}>🏆 CI Point Top 30</h2>
+          <button onClick={()=>setShowCriteria(true)} style={{background:'linear-gradient(135deg,#f59e0b,#f97316)',border:'none',cursor:'pointer',color:'#fff',padding:'4px 12px',borderRadius:'8px',fontSize:'11px',fontWeight:700,boxShadow:'0 2px 6px rgba(245,158,11,.3)',whiteSpace:'nowrap'}}>지급 기준</button>
+        </div>
+        <select value={year} onChange={e=>setYear(Number(e.target.value))} style={{padding:'6px 12px',borderRadius:'8px',border:'1px solid #ddd',fontSize:'13px',fontWeight:600}}>
+          {[2026,2027,2028].map(y=>(<option key={y} value={y}>{y}년</option>))}
+        </select>
+      </div>
+
+      {/* Criteria Modal */}
+      {showCriteria&&(
+        <div onClick={()=>setShowCriteria(false)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'12px',animation:'fadeIn .15s ease'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:'16px',maxWidth:'560px',width:'100%',maxHeight:'90vh',overflow:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)',animation:'popIn .25s ease-out'}}>
+            <div style={{position:'sticky',top:0,background:'linear-gradient(135deg,#f59e0b,#f97316)',padding:'14px 18px',borderRadius:'16px 16px 0 0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'8px',color:'#fff'}}>
+                <span style={{fontSize:'20px'}}>📋</span>
+                <h3 style={{margin:0,fontSize:'15px',fontWeight:800}}>CI Point 지급 기준</h3>
+              </div>
+              <button onClick={()=>setShowCriteria(false)} style={{background:'rgba(255,255,255,.2)',border:'none',cursor:'pointer',color:'#fff',width:'28px',height:'28px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px',fontWeight:700}}>×</button>
+            </div>
+            <div style={{padding:'12px',overflowX:'auto'}}>
+              <table style={{width:'100%',borderCollapse:'collapse',fontSize:'11px',minWidth:'480px'}}>
+                <thead>
+                  <tr style={{background:'#1e293b'}}>
+                    <th style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'center',width:'30px',borderRight:'1px solid #334155'}}>No</th>
+                    <th style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'left',borderRight:'1px solid #334155'}}>CI 활동 분류</th>
+                    <th style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'left',borderRight:'1px solid #334155'}}>평가 항목</th>
+                    <th style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'center',width:'45px',borderRight:'1px solid #334155'}}>Before</th>
+                    <th colSpan={2} style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'center',borderRight:'1px solid #334155'}}>After</th>
+                    <th style={{padding:'8px 6px',color:'#fff',fontWeight:700,textAlign:'center',width:'60px'}}>비고</th>
+                  </tr>
+                  <tr style={{background:'#334155'}}>
+                    <th colSpan={4} style={{padding:'4px',borderRight:'1px solid #475569'}}/>
+                    <th style={{padding:'4px 6px',color:'#fbbf24',fontSize:'10px',fontWeight:700,textAlign:'center',borderRight:'1px solid #475569',width:'50px'}}>전 직원</th>
+                    <th style={{padding:'4px 6px',color:'#fbbf24',fontSize:'10px',fontWeight:700,textAlign:'center',borderRight:'1px solid #475569',width:'55px'}}>팀장/조장급</th>
+                    <th style={{padding:'4px',borderRight:'none'}}/>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CI_CRITERIA.map((c,i)=>(
+                    <tr key={i} style={{background:i%2===0?'#fff':'#f8fafc',borderBottom:'1px solid #e5e7eb'}}>
+                      <td style={{padding:'6px',textAlign:'center',fontWeight:700,color:'#666',borderRight:'1px solid #e5e7eb'}}>{c.no}</td>
+                      <td style={{padding:'6px',fontWeight:600,color:'#333',borderRight:'1px solid #e5e7eb',whiteSpace:'pre-line',lineHeight:1.3}}>{c.cat||''}</td>
+                      <td style={{padding:'6px',color:'#555',borderRight:'1px solid #e5e7eb',whiteSpace:'pre-line',lineHeight:1.3}}>{c.item}</td>
+                      <td style={{padding:'6px',textAlign:'center',color:'#999',borderRight:'1px solid #e5e7eb'}}>{c.before}</td>
+                      <td style={{padding:'6px',textAlign:'center',fontWeight:700,color:'#f59e0b',borderRight:'1px solid #e5e7eb'}}>{c.all??'-'}</td>
+                      <td style={{padding:'6px',textAlign:'center',fontWeight:700,color:'#f59e0b',borderRight:'1px solid #e5e7eb'}}>{c.leader??'-'}</td>
+                      <td style={{padding:'6px',textAlign:'center',fontSize:'10px',color:c.note&&c.note.includes('신설')?'#2563eb':'#888',fontWeight:c.note?600:400}}>{c.note||''}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Legend */}
+      <div style={{display:'flex',flexWrap:'wrap',gap:'8px',marginBottom:'16px',padding:'10px',background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb'}}>
+        {categories.filter(c=>c!=='교환').map((c,i)=>(
+          <span key={c} style={{display:'flex',alignItems:'center',gap:'4px',fontSize:'11px',fontWeight:600,color:'#555'}}>
+            <span style={{width:'10px',height:'10px',borderRadius:'3px',background:getCatColor(i)}}/>
+            {c}
+          </span>
+        ))}
+      </div>
+
+      {/* Detail Popup */}
+      {selData&&(
+        <div onClick={()=>setSelPerson(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',animation:'fadeIn .15s ease'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:'16px',padding:'20px',maxWidth:'360px',width:'100%',boxShadow:'0 20px 60px rgba(0,0,0,.25)',animation:'popIn .25s ease-out'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'14px'}}>
+              <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+                <div style={{width:'36px',height:'36px',borderRadius:'50%',background:'linear-gradient(135deg,#f59e0b,#f97316)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:'14px',fontWeight:800}}>{rankings.indexOf(selData)+1}</div>
+                <div>
+                  <div style={{fontSize:'16px',fontWeight:800}}>{selData.name}</div>
+                  <div style={{fontSize:'11px',color:'#888'}}>{selData.dept}</div>
+                </div>
+              </div>
+              <button onClick={()=>setSelPerson(null)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',width:'28px',height:'28px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#666',fontSize:'16px'}}>×</button>
+            </div>
+            <table style={{width:'100%',borderCollapse:'collapse',fontSize:'13px'}}>
+              <thead>
+                <tr style={{background:'#f8fafc'}}>
+                  <th style={{textAlign:'left',padding:'8px 10px',borderBottom:'2px solid #e5e7eb',color:'#666',fontWeight:700}}>카테고리</th>
+                  <th style={{textAlign:'right',padding:'8px 10px',borderBottom:'2px solid #e5e7eb',color:'#666',fontWeight:700,width:'70px'}}>점수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.filter(c=>c!=='교환').map((cat,ci)=>{
+                  const val=selData.totals[cat]||0;
+                  if(!val)return null;
+                  return(
+                    <tr key={cat} style={{background:ci%2===0?'#fff':'#fafafa'}}>
+                      <td style={{padding:'7px 10px',borderBottom:'1px solid #f0f0f0'}}>
+                        <span style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                          <span style={{width:'8px',height:'8px',borderRadius:'2px',background:getCatColor(ci),flexShrink:0}}/>
+                          {cat}
+                        </span>
+                      </td>
+                      <td style={{padding:'7px 10px',borderBottom:'1px solid #f0f0f0',textAlign:'right',fontWeight:700}}>{val}</td>
+                    </tr>
+                  );
+                })}
+                {selData.exchange>0&&(
+                  <tr style={{background:'#f9fafb'}}>
+                    <td style={{padding:'7px 10px',borderBottom:'1px solid #f0f0f0'}}>
+                      <span style={{display:'flex',alignItems:'center',gap:'6px',color:'#64748b'}}>
+                        <span style={{width:'8px',height:'8px',borderRadius:'2px',background:'#94a3b8',flexShrink:0}}/>
+                        교환 (차감)
+                      </span>
+                    </td>
+                    <td style={{padding:'7px 10px',borderBottom:'1px solid #f0f0f0',textAlign:'right',fontWeight:700,color:'#64748b'}}>-{selData.exchange}</td>
+                  </tr>
+                )}
+              </tbody>
+              <tfoot>
+                <tr style={{background:'#fffbeb'}}>
+                  <td style={{padding:'8px 10px',fontWeight:800,fontSize:'14px'}}>총점</td>
+                  <td style={{padding:'8px 10px',textAlign:'right',fontWeight:800,fontSize:'17px',color:'#f59e0b'}}>{selData.gross}</td>
+                </tr>
+                {selData.exchange>0&&(
+                <tr style={{background:'#f0fdf4'}}>
+                  <td style={{padding:'6px 10px',fontWeight:600,fontSize:'12px',color:'#666'}}>잔여 포인트</td>
+                  <td style={{padding:'6px 10px',textAlign:'right',fontWeight:800,fontSize:'14px',color:'#16a34a'}}>{selData.total}P</td>
+                </tr>
+                )}
+              </tfoot>
+            </table>
+            <button onClick={()=>{setShowShop(selData.name);setSelPerson(null)}} style={{width:'100%',marginTop:'12px',padding:'10px',background:'linear-gradient(135deg,#f59e0b,#f97316)',color:'#fff',border:'none',borderRadius:'10px',fontSize:'13px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',boxShadow:'0 2px 8px rgba(245,158,11,.3)'}}>
+              <Icon name="Gift" size={16}/> 상품교환
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Shop Modal */}
+      {showShop&&(()=>{
+        const person=rankings.find(r=>r.name===showShop);
+        if(!person)return null;
+        return(
+        <div onClick={()=>setShowShop(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.45)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px',animation:'fadeIn .15s ease'}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:'16px',maxWidth:'420px',width:'100%',maxHeight:'85vh',overflow:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.25)',animation:'popIn .25s ease-out'}}>
+            <div style={{padding:'16px 18px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div>
+                <div style={{fontSize:'15px',fontWeight:800}}>🎁 상품교환</div>
+                <div style={{fontSize:'12px',color:'#888',marginTop:'2px'}}>{person.name} · 총점 {person.gross}P · 잔여 <span style={{color:'#22c55e',fontWeight:800}}>{person.total}P</span></div>
+              </div>
+              <button onClick={()=>setShowShop(null)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',width:'28px',height:'28px',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#666',fontSize:'16px'}}>×</button>
+            </div>
+            <div style={{padding:'12px'}}>
+              {products.length===0?(
+                <div style={{textAlign:'center',padding:'30px',color:'#999'}}>
+                  <div style={{fontSize:'36px',marginBottom:'8px'}}>🎁</div>
+                  <p style={{fontSize:'13px',fontWeight:600}}>등록된 상품이 없습니다</p>
+                  <p style={{fontSize:'11px',marginTop:'4px'}}>관리 탭에서 상품을 등록해주세요</p>
+                </div>
+              ):(
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
+                  {products.map(pr=>{
+                    const canAfford=person.total>=pr.points;
+                    return(
+                      <div key={pr.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden',opacity:canAfford?1:0.5}}>
+                        {pr.photo?(
+                          <div style={{width:'100%',height:'100px',overflow:'hidden',background:'#f3f4f6'}}>
+                            <img src={pr.photo} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>{e.target.style.display='none'}}/>
+                          </div>
+                        ):(
+                          <div style={{width:'100%',height:'100px',background:'linear-gradient(135deg,#f0f4ff,#e8f0fe)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'32px'}}>🎁</div>
+                        )}
+                        <div style={{padding:'8px'}}>
+                          <div style={{fontSize:'12px',fontWeight:700,marginBottom:'4px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{pr.name}</div>
+                          <div style={{fontSize:'14px',fontWeight:800,color:'#f59e0b',marginBottom:'6px'}}>{pr.points}P</div>
+                          <button onClick={()=>handleExchange(pr)} disabled={!canAfford} style={{width:'100%',padding:'6px',background:canAfford?'linear-gradient(135deg,#f59e0b,#f97316)':'#e5e7eb',color:canAfford?'#fff':'#999',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:700,cursor:canAfford?'pointer':'not-allowed'}}>
+                            {canAfford?'교환하기':'포인트 부족'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>);
+      })()}
+
+      {top30.length===0?(
+        <div style={{textAlign:'center',padding:'60px 20px',color:'#999'}}>
+          <div style={{fontSize:'48px',marginBottom:'12px'}}>📊</div>
+          <p style={{fontSize:'15px',fontWeight:600}}>데이터가 없습니다</p>
+          <p style={{fontSize:'12px',marginTop:'4px'}}>관리 탭에서 포인트를 입력해주세요</p>
+        </div>
+      ):(
+        <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
+          {(showAll?rankings:top30).map((p,idx)=>{
+            const barW=maxScore>0?(p.total/maxScore)*100:0;
+            return(
+              <div key={p.name+idx} onClick={()=>setSelPerson(selPerson===p.name?null:p.name)} style={{display:'flex',alignItems:'center',gap:'8px',padding:'4px 0',cursor:'pointer',borderRadius:'6px',background:selPerson===p.name?'#fffbeb':'transparent',transition:'background .2s'}}>
+                {/* Rank */}
+                <div style={{width:'24px',textAlign:'right',fontSize:'12px',fontWeight:800,color:idx<3?['#FFD700','#C0C0C0','#CD7F32'][idx]:'#888',flexShrink:0}}>
+                  {idx+1}
+                </div>
+                {/* Name + Dept */}
+                <div style={{width:'70px',flexShrink:0,overflow:'hidden'}}>
+                  <div style={{fontSize:'11px',fontWeight:700,color:'#333',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
+                  <div style={{fontSize:'9px',color:'#999'}}>{p.dept}</div>
+                </div>
+                {/* Stacked Bar */}
+                <div style={{flex:1,height:'22px',background:'#f3f4f6',borderRadius:'4px',overflow:'hidden',display:'flex',position:'relative'}}>
+                  {categories.map((cat,ci)=>{
+                    if(cat==='교환')return null;
+                    const val=p.totals[cat]||0;
+                    if(!val)return null;
+                    const w=(val/maxScore)*100;
+                    return(
+                      <div key={cat} title={`${cat}: ${val}`} style={{width:w+'%',height:'100%',background:getCatColor(ci),display:'flex',alignItems:'center',justifyContent:'center',transition:'width .5s ease'}}>
+                        {w>6&&<span style={{fontSize:'8px',fontWeight:700,color:'#fff',textShadow:'0 1px 2px rgba(0,0,0,.3)'}}>{val}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Total (Remaining) */}
+                <div style={{width:'70px',textAlign:'right',flexShrink:0}}>
+                  <div style={{fontSize:'13px',fontWeight:800,color:'#333',lineHeight:1.2}}>{p.gross}{p.exchange>0&&<span style={{fontSize:'10px',color:'#888',fontWeight:600}}>({p.total})</span>}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {rankings.length>30&&(
+        <button onClick={()=>setShowAll(!showAll)} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',width:'100%',padding:'10px',marginTop:'12px',background:'#fff',border:'1px solid #e5e7eb',borderRadius:'10px',fontSize:'13px',fontWeight:600,color:'#666',cursor:'pointer'}}>
+          {showAll?(<><Icon name="ChevronUp" size={16}/> 접기 (Top 30만 보기)</>):(<><Icon name="ChevronDown" size={16}/> + 더보기 (전체 {rankings.length}명)</>)}
+        </button>
+      )}
+    </div>
+  );};
+
+  // === MANAGE ===
+  const Manage=()=>{
+    const[search,setSearch]=useState('');
+    const filtered=yearEntries.filter(e=>{
+      if(!search)return true;
+      const s=search.toLowerCase();
+      return e.name.toLowerCase().includes(s)||e.category.toLowerCase().includes(s)||(e.dept||'').toLowerCase().includes(s);
+    }).sort((a,b)=>b.date.localeCompare(a.date));
+
+    return(
+      <div style={{padding:'16px',maxWidth:'600px',margin:'0 auto'}}>
+        {/* Entry Form */}
+        <div style={{background:'#fff',borderRadius:'16px',padding:'16px',marginBottom:'16px',border:'1px solid #e5e7eb',boxShadow:'0 2px 8px rgba(0,0,0,.05)'}}>
+          <h3 style={{fontSize:'14px',fontWeight:700,marginBottom:'12px'}}>{editId?'✏️ 수정':'➕ 포인트 입력'}</h3>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}}>
+            <input value={formName} onChange={e=>setFormName(e.target.value)} placeholder="이름 *" style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+            <select value={formDept} onChange={e=>setFormDept(e.target.value)} style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px',color:formDept?'#333':'#999'}}>
+              <option value="">부서</option>
+              {departments.map(d=>(<option key={d} value={d}>{d}</option>))}
+            </select>
+            <select value={formCat} onChange={e=>setFormCat(e.target.value)} style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px',color:formCat?'#333':'#999'}}>
+              <option value="">카테고리 *</option>
+              {categories.map(c=>(<option key={c} value={c}>{c}</option>))}
+            </select>
+            <input type="number" value={formScore} onChange={e=>setFormScore(e.target.value)} placeholder="점수 *" style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+            <input type="date" value={formDate} onChange={e=>setFormDate(e.target.value)} style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+            <input value={formMemo} onChange={e=>setFormMemo(e.target.value)} placeholder="메모" style={{padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+          </div>
+          <div style={{display:'flex',gap:'8px',marginTop:'10px'}}>
+            <button onClick={addEntry} style={{flex:1,padding:'10px',background:editId?'#f59e0b':'#2563eb',color:'#fff',border:'none',borderRadius:'8px',fontWeight:700,fontSize:'13px',cursor:'pointer'}}>{editId?'수정 완료':'등록'}</button>
+            {editId&&<button onClick={()=>{setEditId(null);setFormName('');setFormScore('');setFormMemo('')}} style={{padding:'10px 16px',background:'#e5e7eb',color:'#333',border:'none',borderRadius:'8px',fontWeight:600,fontSize:'13px',cursor:'pointer'}}>취소</button>}
+          </div>
+        </div>
+
+        {/* Excel Import */}
+        <div style={{display:'flex',gap:'8px',marginBottom:'16px'}}>
+          <label style={{flex:1,padding:'10px',background:'#fff',border:'1px dashed #10b981',borderRadius:'8px',textAlign:'center',cursor:'pointer',fontSize:'12px',fontWeight:600,color:'#10b981'}}>
+            📥 엑셀 가져오기 (이름/부서/카테고리/점수/날짜)
+            <input type="file" accept=".xlsx,.xls,.csv" onChange={handleExcel} style={{display:'none'}}/>
+          </label>
+        </div>
+
+        {/* List */}
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}}>
+          <span style={{fontSize:'13px',fontWeight:600,color:'#666'}}>{year}년 총 <span style={{color:'#2563eb',fontWeight:800}}>{filtered.length}</span>건</span>
+          <div style={{position:'relative'}}>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="검색..." style={{padding:'6px 10px 6px 28px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'12px',width:'140px'}}/>
+            <Icon name="Search" size={14} style={{position:'absolute',left:'8px',top:'50%',transform:'translateY(-50%)',color:'#999'}}/>
+          </div>
+        </div>
+
+        {filtered.length===0?(
+          <div style={{textAlign:'center',padding:'40px',color:'#999',fontSize:'13px'}}>데이터 없음</div>
+        ):(
+          <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+            {filtered.map(e=>{
+              const ci=categories.indexOf(e.category);
+              return(
+                <div key={e.id} style={{background:'#fff',borderRadius:'12px',padding:'10px 14px',border:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:'10px'}}>
+                  <div style={{width:'4px',height:'36px',borderRadius:'4px',background:ci>=0?getCatColor(ci):'#ddd',flexShrink:0}}/>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
+                      <span style={{fontSize:'13px',fontWeight:700}}>{e.name}</span>
+                      {e.dept&&<span style={{fontSize:'10px',color:'#999'}}>{e.dept}</span>}
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                      <span style={{fontSize:'10px',fontWeight:600,padding:'1px 6px',borderRadius:'4px',background:ci>=0?getCatColor(ci)+'20':'#f3f4f6',color:ci>=0?getCatColor(ci):'#666'}}>{e.category}</span>
+                      <span style={{fontSize:'10px',color:'#999'}}>{e.date}</span>
+                      {e.memo&&<span style={{fontSize:'10px',color:'#bbb'}}>· {e.memo}</span>}
+                    </div>
+                  </div>
+                  <div style={{fontSize:'16px',fontWeight:800,color:'#333',flexShrink:0}}>{e.score}</div>
+                  <div style={{display:'flex',gap:'4px',flexShrink:0}}>
+                    <button onClick={()=>editEntry(e)} style={{background:'none',border:'none',cursor:'pointer',color:'#999',padding:'4px'}}><Icon name="Pencil" size={14}/></button>
+                    <button onClick={()=>delEntry(e.id)} style={{background:'none',border:'none',cursor:'pointer',color:'#ef4444',padding:'4px'}}><Icon name="Trash2" size={14}/></button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Product Management */}
+        <div style={{marginTop:'24px',background:'#fff',borderRadius:'16px',padding:'16px',border:'1px solid #e5e7eb',boxShadow:'0 2px 8px rgba(0,0,0,.05)'}}>
+          <h3 style={{fontSize:'14px',fontWeight:700,marginBottom:'12px'}}>🎁 교환 상품 등록</h3>
+          <ProductManager products={products} setProducts={setProducts}/>
+        </div>
+
+        {/* Exchange Requests & History */}
+        {(()=>{
+          const yearEx=exchangeHistory.filter(h=>{const m=(h.date||'').match(/(\d{4})/);return m&&parseInt(m[1])===year});
+          const pending=yearEx.filter(h=>h.status!=='완료').sort((a,b)=>b.date.localeCompare(a.date));
+          const completed=yearEx.filter(h=>h.status==='완료').sort((a,b)=>b.date.localeCompare(a.date));
+          return(<>
+          {/* 교환 신청 내역 */}
+          {pending.length>0&&(
+          <div style={{marginTop:'16px',background:'#fff',borderRadius:'16px',padding:'16px',border:'2px solid #fbbf24',boxShadow:'0 2px 8px rgba(245,158,11,.1)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
+              <span style={{fontSize:'16px'}}>📋</span>
+              <h3 style={{fontSize:'14px',fontWeight:700,margin:0,color:'#92400e'}}>교환 신청 내역</h3>
+              <span style={{background:'#fef3c7',color:'#92400e',fontSize:'11px',fontWeight:700,padding:'2px 8px',borderRadius:'10px'}}>{pending.length}건 대기중</span>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+              {pending.map(h=>(
+                <div key={h.id} style={{display:'flex',alignItems:'center',gap:'8px',padding:'10px 12px',background:'#fffbeb',borderRadius:'10px',border:'1px solid #fde68a',fontSize:'12px'}}>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'3px'}}>
+                      <span style={{fontWeight:700,fontSize:'13px'}}>{h.name}</span>
+                      <span style={{color:'#888',fontSize:'11px'}}>{h.dept}</span>
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:'6px'}}>
+                      <span style={{color:'#f59e0b',fontWeight:700}}>🎁 {h.product}</span>
+                      <span style={{fontWeight:800,color:'#b45309'}}>{h.points}P</span>
+                      <span style={{color:'#bbb',fontSize:'10px'}}>{h.date}</span>
+                    </div>
+                  </div>
+                  <button onClick={()=>approveExchange(h)} style={{padding:'6px 12px',background:'linear-gradient(135deg,#22c55e,#16a34a)',color:'#fff',border:'none',borderRadius:'8px',fontSize:'11px',fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',boxShadow:'0 2px 6px rgba(34,197,94,.3)'}}>✅ 지급완료</button>
+                  <button onClick={()=>cancelExchange(h)} style={{padding:'6px 8px',background:'#f3f4f6',color:'#999',border:'none',borderRadius:'8px',fontSize:'11px',cursor:'pointer'}} title="취소">✕</button>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+
+          {/* 교환 완료 내역 */}
+          {completed.length>0&&(
+          <div style={{marginTop:'16px',background:'#fff',borderRadius:'16px',padding:'16px',border:'1px solid #e5e7eb'}}>
+            <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px'}}>
+              <span style={{fontSize:'16px'}}>✅</span>
+              <h3 style={{fontSize:'14px',fontWeight:700,margin:0}}>교환 완료 내역</h3>
+              <span style={{background:'#f0fdf4',color:'#166534',fontSize:'11px',fontWeight:700,padding:'2px 8px',borderRadius:'10px'}}>{completed.length}건</span>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+              {completed.map(h=>(
+                <div key={h.id} style={{display:'flex',alignItems:'center',gap:'10px',padding:'8px 10px',background:'#f9fafb',borderRadius:'8px',fontSize:'12px'}}>
+                  <span style={{fontWeight:700}}>{h.name}</span>
+                  <span style={{color:'#888'}}>{h.dept}</span>
+                  <span style={{flex:1,color:'#f59e0b',fontWeight:600}}>{h.product}</span>
+                  <span style={{fontWeight:700,color:'#64748b'}}>-{h.points}P</span>
+                  <span style={{color:'#bbb'}}>{h.date}</span>
+                  <span style={{background:'#dcfce7',color:'#166534',padding:'2px 6px',borderRadius:'4px',fontSize:'10px',fontWeight:600}}>완료</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          )}
+          </>);
+        })()}
+      </div>
+    );
+  };
+
+  const grd='linear-gradient(135deg,#f59e0b,#f97316)';
+  const acc='#f59e0b';
+  const tabs=[{id:'dashboard',label:'대시보드',icon:'BarChart3'},{id:'manage',label:'관리',icon:'PlusCircle'},{id:'list',label:'전체목록',icon:'List'}];
+
+  // === ALL LIST (grouped by person) ===
+  const AllList=()=>(
+    <div style={{padding:'16px',maxWidth:'600px',margin:'0 auto'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
+        <h3 style={{fontSize:'15px',fontWeight:700,margin:0}}>📋 개인별 상세</h3>
+        <select value={year} onChange={e=>setYear(Number(e.target.value))} style={{padding:'4px 10px',borderRadius:'6px',border:'1px solid #ddd',fontSize:'12px'}}>{[2026,2027,2028].map(y=>(<option key={y} value={y}>{y}년</option>))}</select>
+      </div>
+      {rankings.length===0?(
+        <div style={{textAlign:'center',padding:'40px',color:'#999',fontSize:'13px'}}>데이터 없음</div>
+      ):(
+        <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+          {rankings.map((p,idx)=>(
+            <details key={p.name+idx} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
+              <summary style={{padding:'10px 14px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px',listStyle:'none'}}>
+                <span style={{fontSize:'12px',fontWeight:800,color:idx<3?['#FFD700','#C0C0C0','#CD7F32'][idx]:'#888',width:'20px'}}>{idx+1}</span>
+                <span style={{fontSize:'13px',fontWeight:700,flex:1}}>{p.name} <span style={{fontSize:'10px',color:'#999',fontWeight:400}}>{p.dept}</span></span>
+                <div style={{display:'flex',gap:'4px'}}>
+                  {categories.map((cat,ci)=>{const v=p.totals[cat];if(!v)return null;return(
+                    <span key={cat} style={{fontSize:'9px',fontWeight:700,padding:'2px 6px',borderRadius:'4px',background:getCatColor(ci)+'20',color:getCatColor(ci)}}>{cat} {v}</span>
+                  )})}
+                </div>
+                <span style={{fontSize:'14px',fontWeight:800,color:'#333',whiteSpace:'nowrap'}}>{p.gross}{p.exchange>0&&<span style={{fontSize:'11px',color:'#888',fontWeight:600}}>({p.total})</span>}</span>
+              </summary>
+              <div style={{padding:'8px 14px 12px',borderTop:'1px solid #f3f4f6',background:'#fafafa'}}>
+                {yearEntries.filter(e=>e.name===p.name).sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
+                  const ci=categories.indexOf(e.category);
+                  return(
+                    <div key={e.id} style={{display:'flex',alignItems:'center',gap:'8px',padding:'4px 0',fontSize:'11px'}}>
+                      <span style={{width:'4px',height:'16px',borderRadius:'2px',background:ci>=0?getCatColor(ci):'#ddd'}}/>
+                      <span style={{color:'#999',width:'70px'}}>{e.date}</span>
+                      <span style={{fontWeight:600,color:ci>=0?getCatColor(ci):'#666'}}>{e.category}</span>
+                      <span style={{flex:1,color:'#999'}}>{e.memo||''}</span>
+                      <span style={{fontWeight:800}}>{e.score}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </details>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f0f4ff'}}>
+    {/* Header */}
+    <div style={{flexShrink:0,background:grd,padding:'10px 16px',display:'flex',alignItems:'center',gap:'10px'}}>
+      <button onClick={onBack} style={{background:'rgba(255,255,255,.15)',border:'none',cursor:'pointer',color:'#fff',borderRadius:'10px',width:'34px',height:'34px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={20}/></button>
+      <span style={{fontSize:'24px'}}>🎯</span>
+      <h1 style={{color:'#fff',fontSize:'15px',fontWeight:800,margin:0,flex:1}}>CI Point</h1>
+      <button onClick={()=>{if(!isAdmin){const pw=prompt('관리자 비밀번호:');if(pw===ADMIN_PW)setIsAdmin(true);else{alert('비밀번호 오류');return;}}setShowSettings(true)}} style={{background:'rgba(255,255,255,.15)',border:'none',cursor:'pointer',color:'#fff',borderRadius:'10px',width:'34px',height:'34px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="Settings" size={16}/></button>
+    </div>
+
+    {/* Content */}
+    <div style={{flex:1,overflow:'auto',paddingBottom:'70px'}}>
+      {activeTab==='dashboard'&&<Dashboard/>}
+      {activeTab==='manage'&&<Manage/>}
+      {activeTab==='list'&&<AllList/>}
+    </div>
+
+    {/* Bottom Tab Bar */}
+    <nav style={{position:'fixed',bottom:0,left:0,right:0,background:'#fff',borderTop:'1px solid #e5e7eb',boxShadow:'0 -4px 20px rgba(0,0,0,.05)',zIndex:40}}>
+      <div style={{maxWidth:'600px',margin:'0 auto',display:'flex'}}>
+        {tabs.map(t=>(
+          <button key={t.id} onClick={()=>{
+            if((t.id==='manage'||t.id==='list')&&!isAdmin){
+              const pw=prompt('관리자 비밀번호를 입력하세요:');
+              if(pw!==ADMIN_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}
+              setIsAdmin(true);
+            }
+            setActiveTab(t.id);
+          }} style={{flex:1,padding:'10px 0',display:'flex',flexDirection:'column',alignItems:'center',gap:'3px',border:'none',background:'transparent',cursor:'pointer',position:'relative'}}>
+            {activeTab===t.id&&<div style={{position:'absolute',top:0,left:'20%',right:'20%',height:'3px',borderRadius:'0 0 3px 3px',background:grd}}/>}
+            <Icon name={t.icon} size={20} style={{color:activeTab===t.id?acc:'#9ca3af'}}/>
+            <span style={{fontSize:'11px',fontWeight:activeTab===t.id?700:500,color:activeTab===t.id?acc:'#9ca3af'}}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
+
+    {settingsModal}
+  </div>);
 }
 // ===== Safety Tracker =====
 function SafetyApp({onBack}){
