@@ -1770,6 +1770,10 @@ function SafetyPatrolApp({onBack}){
   // 스케줄 & 점검자 목록
   const[inspectors,setInspectors]=useState(()=>S.get('sp_inspectors',[]));
   const[schedule,setSchedule]=useState(()=>S.get('sp_schedule',{})); // {yyyy-Www: {mon:[name],tue:[name],...}}
+  const[schedView,setSchedView]=useState('week'); // 'week' | 'cal'
+  const[calMonth,setCalMonth]=useState(()=>({y:new Date().getFullYear(),m:new Date().getMonth()}));
+  const[calSelDate,setCalSelDate]=useState(null);
+  const[personSched,setPersonSched]=useState(null); // selected person name
   const[scheduleWeek,setScheduleWeek]=useState(()=>{
     const d=new Date();const jan1=new Date(d.getFullYear(),0,1);const days=Math.floor((d-jan1)/86400000);
     return d.getFullYear()+'-W'+String(Math.ceil((days+jan1.getDay()+1)/7)).padStart(2,'0');
@@ -1846,14 +1850,15 @@ function SafetyPatrolApp({onBack}){
     const ws=getWeekSchedule();
     const today=kstToday();
     const[editDay,setEditDay]=useState(null);
-    const[editItems,setEditItems]=useState([]); // [{name,zoneId}]
+    const[editItems,setEditItems]=useState([]);
     const[addName,setAddName]=useState('');
     const[addZone,setAddZone]=useState('');
 
-    const startEdit=(dayKey)=>{
+    const startEdit=(dayKey,weekOverride)=>{
       if(!isAdmin){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==ADMIN_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}setIsAdmin(true);}
       setEditDay(dayKey);
-      setEditItems(ws[dayKey]||[]);
+      const wk=weekOverride||scheduleWeek;
+      setEditItems((schedule[wk]&&schedule[wk][dayKey])||[]);
       setAddName('');setAddZone('');
     };
     const addItem=()=>{
@@ -1864,19 +1869,98 @@ function SafetyPatrolApp({onBack}){
     const removeItem=(idx)=>setEditItems(prev=>prev.filter((_,i)=>i!==idx));
     const saveEdit=()=>{setDaySchedule(editDay,editItems);setEditDay(null);};
 
-    // 스케줄 클릭 → 점검 시작
+    const[confirmItem,setConfirmItem]=useState(null); // {dateStr, item}
     const startFromSchedule=(dateStr,item)=>{
-      setPatrolDate(dateStr);
-      setInspector(item.name);
-      setZone(item.zoneId);
+      setConfirmItem({dateStr,item});
+    };
+    const confirmYes=()=>{
+      if(!confirmItem)return;
+      setPatrolDate(confirmItem.dateStr);
+      setInspector(confirmItem.item.name);
+      setZone(confirmItem.item.zoneId);
       setAnswers({});
       setFindings('');
+      setConfirmItem(null);
+      setTab('check');
+    };
+    const confirmNo=()=>{
+      if(!confirmItem)return;
+      const who=prompt('점검자 이름을 입력하세요:');
+      if(!who||!who.trim()){setConfirmItem(null);return;}
+      setPatrolDate(confirmItem.dateStr);
+      setInspector(who.trim());
+      setZone(confirmItem.item.zoneId);
+      setAnswers({});
+      setFindings('');
+      setConfirmItem(null);
       setTab('check');
     };
 
-    return(<div style={{padding:'16px',maxWidth:'500px',margin:'0 auto'}}>
-      {/* Week nav */}
-      <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'12px',marginBottom:'16px'}}>
+    // 월간 캘린더 헬퍼
+    const getCalDays=()=>{
+      const{y,m}=calMonth;
+      const first=new Date(y,m,1);
+      const last=new Date(y,m+1,0);
+      const startDay=first.getDay();
+      const days=[];
+      const offset=(startDay+6)%7;
+      for(let i=0;i<offset;i++)days.push(null);
+      for(let d=1;d<=last.getDate();d++)days.push(d);
+      return days;
+    };
+    const calDateStr=(d)=>{
+      const{y,m}=calMonth;
+      return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    };
+    const changeCalMonth=(delta)=>{
+      setCalMonth(prev=>{
+        let nm=prev.m+delta,ny=prev.y;
+        if(nm<0){nm=11;ny--;}
+        if(nm>11){nm=0;ny++;}
+        return{y:ny,m:nm};
+      });
+      setCalSelDate(null);
+    };
+    const calMN=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    const getDateSchedule=(dateStr)=>{
+      const d=new Date(dateStr);
+      const dayIdx=d.getDay();
+      if(dayIdx===0||dayIdx===6)return[];
+      const dk=DAY_KEYS[(dayIdx+6)%7];
+      const jan1=new Date(d.getFullYear(),0,1);
+      const days2=Math.floor((d-jan1)/86400000);
+      const wk=d.getFullYear()+'-W'+String(Math.ceil((days2+jan1.getDay()+1)/7)).padStart(2,'0');
+      return(schedule[wk]&&schedule[wk][dk])||[];
+    };
+    const getDatePatrols=(dateStr)=>patrols.filter(p=>p.date===dateStr);
+
+    return(<div style={{padding:'16px',maxWidth:schedView==='cal'?'1100px':'500px',margin:'0 auto',transition:'max-width .3s'}}>
+      {/* View toggle */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
+        <div style={{display:'flex',gap:'4px',background:'#f3f4f6',borderRadius:'8px',padding:'2px'}}>
+          <button onClick={()=>setSchedView('week')} style={{padding:'5px 10px',borderRadius:'6px',border:'none',fontSize:'11px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:'4px',
+            background:schedView==='week'?'#fff':'transparent',color:schedView==='week'?acc:'#888',boxShadow:schedView==='week'?'0 1px 3px rgba(0,0,0,.1)':'none'}}>
+            <Icon name="List" size={12}/> 주간
+          </button>
+          <button onClick={()=>setSchedView('person')} style={{padding:'5px 10px',borderRadius:'6px',border:'none',fontSize:'11px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:'4px',
+            background:schedView==='person'?'#fff':'transparent',color:schedView==='person'?acc:'#888',boxShadow:schedView==='person'?'0 1px 3px rgba(0,0,0,.1)':'none'}}>
+            <Icon name="User" size={12}/> 개인별
+          </button>
+          <button onClick={()=>{
+            if(schedView!=='cal'){
+              if(!isAdmin){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==ADMIN_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}setIsAdmin(true);}
+              setSchedView('cal');
+            }else setSchedView('cal');
+          }} style={{padding:'5px 10px',borderRadius:'6px',border:'none',fontSize:'11px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:'4px',
+            background:schedView==='cal'?'#fff':'transparent',color:schedView==='cal'?acc:'#888',boxShadow:schedView==='cal'?'0 1px 3px rgba(0,0,0,.1)':'none'}}>
+            <Icon name="Calendar" size={12}/> 달력
+          </button>
+        </div>
+      </div>
+
+      {/* ===== 주간 뷰 ===== */}
+      {schedView==='week'&&(<>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'12px',marginBottom:'12px'}}>
         <button onClick={()=>changeWeek(-1)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ChevronLeft" size={16}/></button>
         <div style={{textAlign:'center'}}>
           <div style={{fontSize:'14px',fontWeight:800,color:'#333'}}>{scheduleWeek.replace('-W',' W')}</div>
@@ -1884,85 +1968,63 @@ function SafetyPatrolApp({onBack}){
         </div>
         <button onClick={()=>changeWeek(1)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ChevronRight" size={16}/></button>
       </div>
-
-      {/* Weekly table */}
-      <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+      <div style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
         {DAY_KEYS.map((dk,i)=>{
-          const date=weekDates[i];
-          const dateStr=fmtDate(date);
-          const isToday=dateStr===today;
-          const assigned=ws[dk]||[]; // [{name,zoneId}]
-          const done=patrols.filter(p=>p.date===dateStr);
-
-          return(<div key={dk} style={{background:isToday?'#f0f9ff':'#fff',borderRadius:'12px',border:isToday?'2px solid #0ea5e9':'1px solid #e5e7eb',padding:'12px',transition:'all .2s'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:assigned.length>0?'6px':'0'}}>
-              {/* Day label */}
-              <div style={{width:'36px',textAlign:'center',flexShrink:0}}>
-                <div style={{fontSize:'11px',fontWeight:700,color:isToday?acc:'#888'}}>{DAYS[i]}</div>
-                <div style={{fontSize:'16px',fontWeight:800,color:isToday?acc:'#333'}}>{date.getDate()}</div>
-              </div>
-              <div style={{flex:1,minHeight:'28px',display:'flex',alignItems:'center'}}>
-                {assigned.length===0&&<span style={{fontSize:'11px',color:'#ccc',fontStyle:'italic'}}>미배정</span>}
-              </div>
-              {/* Edit button */}
-              <button onClick={()=>startEdit(dk)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'6px',width:'28px',height:'28px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}} title="배정"><Icon name="UserPlus" size={13} style={{color:'#888'}}/></button>
-            </div>
-            {/* Assigned items */}
-            {assigned.length>0&&(
-              <div style={{display:'flex',flexDirection:'column',gap:'4px',marginLeft:'44px'}}>
-                {assigned.map((item,ai)=>{
-                  const zd=SP_ZONES.find(z=>z.id===item.zoneId)||{icon:'📋',name:item.zoneId,color:'#888'};
-                  const completed=done.some(p=>p.inspector===item.name&&(p.zoneId===item.zoneId||p.zone===zd.name));
-                  return(<div key={ai} onClick={()=>{if(!completed)startFromSchedule(dateStr,item)}} style={{display:'flex',alignItems:'center',gap:'6px',padding:'6px 10px',borderRadius:'8px',cursor:completed?'default':'pointer',transition:'all .15s',
-                    background:completed?'#f0fdf4':'#fff',border:`1px solid ${completed?'#bbf7d0':'#e5e7eb'}`}}
-                    onMouseOver={e=>{if(!completed)e.currentTarget.style.background='#e0f2fe'}}
-                    onMouseOut={e=>{if(!completed)e.currentTarget.style.background='#fff'}}>
-                    <span style={{fontSize:'14px'}}>{zd.icon}</span>
-                    <span style={{fontSize:'12px',fontWeight:700,color:'#333'}}>{item.name}</span>
-                    <span style={{fontSize:'10px',color:zd.color,fontWeight:600,background:zd.color+'15',padding:'1px 6px',borderRadius:'4px'}}>{zd.name}</span>
-                    <div style={{flex:1}}/>
-                    {completed?(
-                      <span style={{fontSize:'10px',color:'#16a34a',fontWeight:700,display:'flex',alignItems:'center',gap:'2px'}}>✅ 완료</span>
-                    ):(
-                      <span style={{fontSize:'10px',color:acc,fontWeight:600,display:'flex',alignItems:'center',gap:'2px'}}><Icon name="Play" size={10}/> 점검</span>
-                    )}
-                  </div>);
-                })}
-              </div>
-            )}
-          </div>);
+          const date=weekDates[i];const dateStr=fmtDate(date);const isToday=dateStr===today;
+          const assigned=ws[dk]||[];const done=patrols.filter(p=>p.date===dateStr);
+          const rows=assigned.length>0?assigned:['empty'];
+          return rows.map((item,ri)=>{
+            const isItem=item!=='empty';
+            const zd=isItem?(SP_ZONES.find(z=>z.id===item.zoneId)||{icon:'📋',name:item.zoneId,color:'#888'}):null;
+            const completed=isItem&&done.some(p=>p.inspector===item.name&&(p.zoneId===item.zoneId||p.zone===zd.name));
+            return(<div key={dk+ri} onClick={()=>{if(isItem&&!completed)startFromSchedule(dateStr,item)}}
+              style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px 12px',cursor:isItem&&!completed?'pointer':'default',
+                background:isToday?'#f0f9ff':completed?'#f0fdf4':'#fff',
+                borderBottom:i<4||ri<rows.length-1?'1px solid #f3f4f6':'none',
+                transition:'background .15s'}}
+              onMouseOver={e=>{if(isItem&&!completed)e.currentTarget.style.background='#e0f2fe'}}
+              onMouseOut={e=>{if(isItem&&!completed)e.currentTarget.style.background=isToday?'#f0f9ff':completed?'#f0fdf4':'#fff'}}>
+              {ri===0?(
+                <div style={{width:'32px',textAlign:'center',flexShrink:0}}>
+                  <div style={{fontSize:'10px',fontWeight:700,color:isToday?acc:'#999'}}>{DAYS[i]}</div>
+                  <div style={{fontSize:'14px',fontWeight:800,color:isToday?acc:'#333'}}>{date.getDate()}</div>
+                </div>
+              ):<div style={{width:'32px',flexShrink:0}}/>}
+              {isItem?(<>
+                <span style={{fontSize:'13px'}}>{zd.icon}</span>
+                <span style={{fontSize:'12px',fontWeight:700,color:'#333',minWidth:'60px'}}>{item.name}</span>
+                <span style={{fontSize:'10px',color:zd.color,fontWeight:600,background:zd.color+'15',padding:'1px 6px',borderRadius:'4px'}}>{zd.name}</span>
+                <div style={{flex:1}}/>
+                {completed?<span style={{fontSize:'10px',color:'#16a34a',fontWeight:700}}>✅ 완료</span>:
+                 <span style={{fontSize:'10px',color:acc,fontWeight:600}}>▶ 점검</span>}
+              </>):(
+                <span style={{fontSize:'11px',color:'#ddd'}}>—</span>
+              )}
+            </div>);
+          });
         })}
       </div>
-
-      {/* 이번 주 점검 현황 */}
+      {/* 이번 주 현황 */}
       {(()=>{
-        const weekDts=weekDates.map(d=>fmtDate(d));
         const assignedNames=[...new Set(DAY_KEYS.flatMap(dk=>(ws[dk]||[]).map(it=>it.name)))];
         if(assignedNames.length===0)return null;
         const totalAssigned=DAY_KEYS.reduce((s,dk)=>(s+(ws[dk]||[]).length),0);
         const totalDone=DAY_KEYS.reduce((s,dk)=>{
-          const dateStr=fmtDate(weekDates[DAY_KEYS.indexOf(dk)]);
-          return s+(ws[dk]||[]).filter(item=>{
-            const zd=SP_ZONES.find(z=>z.id===item.zoneId);
-            return patrols.some(p=>p.date===dateStr&&p.inspector===item.name&&(p.zoneId===item.zoneId||p.zone===(zd?.name||'')));
-          }).length;
+          const ds2=fmtDate(weekDates[DAY_KEYS.indexOf(dk)]);
+          return s+(ws[dk]||[]).filter(item=>{const zd=SP_ZONES.find(z=>z.id===item.zoneId);
+            return patrols.some(p=>p.date===ds2&&p.inspector===item.name&&(p.zoneId===item.zoneId||p.zone===(zd?.name||'')));}).length;
         },0);
-        return(<div style={{marginTop:'20px',background:'#fff',borderRadius:'12px',padding:'12px',border:'1px solid #e5e7eb'}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'8px'}}>
+        return(<div style={{marginTop:'12px',background:'#fff',borderRadius:'12px',padding:'10px 12px',border:'1px solid #e5e7eb'}}>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'6px'}}>
             <span style={{fontSize:'12px',fontWeight:700,color:'#333'}}>📊 이번 주 현황</span>
             <span style={{fontSize:'11px',fontWeight:700,color:totalDone>=totalAssigned?'#16a34a':'#888'}}>{totalDone}/{totalAssigned} 완료</span>
           </div>
           <div style={{display:'flex',flexWrap:'wrap',gap:'6px'}}>
             {assignedNames.map(name=>{
               const asgn=DAY_KEYS.reduce((s,dk)=>s+(ws[dk]||[]).filter(it=>it.name===name).length,0);
-              const cnt=DAY_KEYS.reduce((s,dk)=>{
-                const dateStr=fmtDate(weekDates[DAY_KEYS.indexOf(dk)]);
-                return s+(ws[dk]||[]).filter(it=>{
-                  if(it.name!==name)return false;
-                  const zd=SP_ZONES.find(z=>z.id===it.zoneId);
-                  return patrols.some(p=>p.date===dateStr&&p.inspector===name&&(p.zoneId===it.zoneId||p.zone===(zd?.name||'')));
-                }).length;
-              },0);
+              const cnt=DAY_KEYS.reduce((s,dk)=>{const ds2=fmtDate(weekDates[DAY_KEYS.indexOf(dk)]);
+                return s+(ws[dk]||[]).filter(it=>{if(it.name!==name)return false;const zd=SP_ZONES.find(z=>z.id===it.zoneId);
+                  return patrols.some(p=>p.date===ds2&&p.inspector===name&&(p.zoneId===it.zoneId||p.zone===(zd?.name||'')));}).length;},0);
               return(<div key={name} style={{fontSize:'11px',padding:'4px 8px',borderRadius:'6px',background:cnt>=asgn?'#dcfce7':'#f9fafb',border:'1px solid #e5e7eb'}}>
                 <span style={{fontWeight:600}}>{name}</span>
                 <span style={{color:cnt>=asgn?'#166534':'#999',marginLeft:'4px'}}>{cnt}/{asgn}</span>
@@ -1971,7 +2033,231 @@ function SafetyPatrolApp({onBack}){
           </div>
         </div>);
       })()}
+      </>)}
 
+      {/* ===== 개인별 뷰 ===== */}
+      {schedView==='person'&&(<>
+      {!personSched?(
+        <div>
+          <p style={{fontSize:'12px',color:'#888',textAlign:'center',marginBottom:'12px'}}>점검자를 선택하세요</p>
+          <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+            {inspectors.map(name=>{
+              // 전체 스케줄에서 이 사람 배정 건수
+              const cnt=Object.entries(schedule).reduce((s,[wk,wData])=>{
+                return s+DAY_KEYS.reduce((s2,dk)=>s2+((wData[dk]||[]).filter(it=>it.name===name).length),0);
+              },0);
+              const doneCnt=patrols.filter(p=>p.inspector===name).length;
+              return(<button key={name} onClick={()=>setPersonSched(name)} style={{display:'flex',alignItems:'center',gap:'10px',padding:'12px',background:'#fff',borderRadius:'10px',border:'1px solid #e5e7eb',cursor:'pointer',width:'100%',textAlign:'left',transition:'all .15s'}}
+                onMouseOver={e=>e.currentTarget.style.borderColor=acc} onMouseOut={e=>e.currentTarget.style.borderColor='#e5e7eb'}>
+                <div style={{width:'36px',height:'36px',borderRadius:'10px',background:'#e0f2fe',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <Icon name="User" size={18} style={{color:acc}}/>
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:'13px',fontWeight:700,color:'#333'}}>{name}</div>
+                  <div style={{fontSize:'10px',color:'#999'}}>배정 {cnt}건 · 완료 {doneCnt}건</div>
+                </div>
+                <Icon name="ChevronRight" size={16} style={{color:'#ccc'}}/>
+              </button>);
+            })}
+            {inspectors.length===0&&<p style={{fontSize:'12px',color:'#ccc',textAlign:'center',padding:'20px'}}>등록된 점검자가 없습니다</p>}
+          </div>
+        </div>
+      ):(()=>{
+        // 해당 사람의 모든 스케줄 수집
+        const myItems=[];
+        Object.entries(schedule).forEach(([wk,wData])=>{
+          DAY_KEYS.forEach((dk,di)=>{
+            (wData[dk]||[]).filter(it=>it.name===personSched).forEach(item=>{
+              // 주차+요일 → 날짜 계산
+              const match=wk.match(/(\d+)-W(\d+)/);
+              if(!match)return;
+              const yr=parseInt(match[1]),wn=parseInt(match[2]);
+              const jan4=new Date(yr,0,4);
+              const w1Mon=new Date(jan4);w1Mon.setDate(jan4.getDate()-(jan4.getDay()+6)%7);
+              const d=new Date(w1Mon);d.setDate(w1Mon.getDate()+(wn-1)*7+di);
+              const ds=fmtDate(d);
+              const zd=SP_ZONES.find(z=>z.id===item.zoneId)||{icon:'📋',name:item.zoneId,color:'#888'};
+              const done2=patrols.some(p=>p.date===ds&&p.inspector===personSched&&(p.zoneId===item.zoneId||p.zone===zd.name));
+              myItems.push({date:ds,zoneId:item.zoneId,zoneName:zd.name,zoneIcon:zd.icon,zoneColor:zd.color,done:done2,item});
+            });
+          });
+        });
+        myItems.sort((a,b)=>a.date.localeCompare(b.date));
+        // 직접 입력한 점검도 추가
+        const extraDone=patrols.filter(p=>p.inspector===personSched&&!myItems.some(mi=>mi.date===p.date&&(mi.zoneId===p.zoneId||mi.zoneName===p.zone)));
+        extraDone.forEach(p=>{
+          const zd=SP_ZONES.find(z=>z.id===p.zoneId||z.name===p.zone)||{icon:'📋',name:p.zone,color:'#888'};
+          myItems.push({date:p.date,zoneId:p.zoneId,zoneName:zd.name,zoneIcon:zd.icon,zoneColor:zd.color,done:true,item:{name:personSched,zoneId:p.zoneId}});
+        });
+        myItems.sort((a,b)=>a.date.localeCompare(b.date));
+
+        const todayStr=kstToday();
+        const upcoming=myItems.filter(m=>m.date>=todayStr&&!m.done);
+        const completed=myItems.filter(m=>m.done);
+        const past=myItems.filter(m=>m.date<todayStr&&!m.done);
+
+        return(<div>
+          <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'16px'}}>
+            <button onClick={()=>setPersonSched(null)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={16}/></button>
+            <div style={{width:'36px',height:'36px',borderRadius:'10px',background:'#e0f2fe',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <Icon name="User" size={18} style={{color:acc}}/>
+            </div>
+            <div>
+              <div style={{fontSize:'15px',fontWeight:800,color:'#333'}}>{personSched}</div>
+              <div style={{fontSize:'10px',color:'#888'}}>총 {myItems.length}건 (완료 {completed.length} · 예정 {upcoming.length})</div>
+            </div>
+          </div>
+
+          {/* 예정 */}
+          {upcoming.length>0&&(<>
+            <div style={{fontSize:'11px',fontWeight:700,color:acc,marginBottom:'6px'}}>📋 예정 ({upcoming.length})</div>
+            <div style={{background:'#fff',borderRadius:'10px',border:'1px solid #e5e7eb',overflow:'hidden',marginBottom:'16px'}}>
+              {upcoming.map((m,i)=>{
+                const dow=['일','월','화','수','목','금','토'][new Date(m.date).getDay()];
+                const isT=m.date===todayStr;
+                return(<div key={'u'+i} onClick={()=>startFromSchedule(m.date,m.item)} style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px 12px',cursor:'pointer',
+                  borderBottom:i<upcoming.length-1?'1px solid #f3f4f6':'none',background:isT?'#f0f9ff':'#fff',transition:'background .15s'}}
+                  onMouseOver={e=>e.currentTarget.style.background='#e0f2fe'} onMouseOut={e=>e.currentTarget.style.background=isT?'#f0f9ff':'#fff'}>
+                  <div style={{fontSize:'11px',color:isT?acc:'#888',fontWeight:600,width:'75px',flexShrink:0}}>{m.date.slice(5)} ({dow})</div>
+                  <span style={{fontSize:'13px'}}>{m.zoneIcon}</span>
+                  <span style={{fontSize:'11px',fontWeight:600,color:m.zoneColor}}>{m.zoneName}</span>
+                  <div style={{flex:1}}/>
+                  {isT&&<span style={{fontSize:'10px',color:acc,fontWeight:700}}>오늘</span>}
+                  <span style={{fontSize:'10px',color:acc,fontWeight:600}}>▶</span>
+                </div>);
+              })}
+            </div>
+          </>)}
+
+          {/* 완료 */}
+          {completed.length>0&&(<>
+            <div style={{fontSize:'11px',fontWeight:700,color:'#16a34a',marginBottom:'6px'}}>✅ 완료 ({completed.length})</div>
+            <div style={{background:'#fff',borderRadius:'10px',border:'1px solid #e5e7eb',overflow:'hidden',marginBottom:'16px'}}>
+              {completed.map((m,i)=>{
+                const dow=['일','월','화','수','목','금','토'][new Date(m.date).getDay()];
+                return(<div key={'d'+i} style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px 12px',
+                  borderBottom:i<completed.length-1?'1px solid #f3f4f6':'none',background:'#f0fdf4'}}>
+                  <div style={{fontSize:'11px',color:'#999',fontWeight:600,width:'75px',flexShrink:0}}>{m.date.slice(5)} ({dow})</div>
+                  <span style={{fontSize:'13px'}}>{m.zoneIcon}</span>
+                  <span style={{fontSize:'11px',fontWeight:600,color:m.zoneColor}}>{m.zoneName}</span>
+                  <div style={{flex:1}}/>
+                  <span style={{fontSize:'10px',color:'#16a34a',fontWeight:700}}>✅</span>
+                </div>);
+              })}
+            </div>
+          </>)}
+
+          {/* 미완료 (과거) */}
+          {past.length>0&&(<>
+            <div style={{fontSize:'11px',fontWeight:700,color:'#ef4444',marginBottom:'6px'}}>⚠️ 미완료 ({past.length})</div>
+            <div style={{background:'#fff',borderRadius:'10px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
+              {past.map((m,i)=>{
+                const dow=['일','월','화','수','목','금','토'][new Date(m.date).getDay()];
+                return(<div key={'p'+i} style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px 12px',
+                  borderBottom:i<past.length-1?'1px solid #f3f4f6':'none',background:'#fff5f5'}}>
+                  <div style={{fontSize:'11px',color:'#ef4444',fontWeight:600,width:'75px',flexShrink:0}}>{m.date.slice(5)} ({dow})</div>
+                  <span style={{fontSize:'13px'}}>{m.zoneIcon}</span>
+                  <span style={{fontSize:'11px',fontWeight:600,color:m.zoneColor}}>{m.zoneName}</span>
+                  <div style={{flex:1}}/>
+                  <span style={{fontSize:'10px',color:'#ef4444',fontWeight:600}}>미완료</span>
+                </div>);
+              })}
+            </div>
+          </>)}
+
+          {myItems.length===0&&<p style={{fontSize:'12px',color:'#ccc',textAlign:'center',padding:'20px'}}>배정된 스케줄이 없습니다</p>}
+        </div>);
+      })()}
+      </>)}
+
+      {/* ===== 달력 뷰 ===== */}
+      {schedView==='cal'&&(<>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'12px',marginBottom:'12px'}}>
+        <button onClick={()=>changeCalMonth(-1)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ChevronLeft" size={16}/></button>
+        <div style={{textAlign:'center',minWidth:'120px'}}>
+          <div style={{fontSize:'16px',fontWeight:800,color:'#333'}}>{calMonth.y}년 {calMN[calMonth.m]}</div>
+        </div>
+        <button onClick={()=>changeCalMonth(1)} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ChevronRight" size={16}/></button>
+      </div>
+      {/* 풀사이즈 달력 */}
+      <div style={{border:'1px solid #e5e7eb',borderRadius:'12px',overflow:'hidden'}}>
+        {/* 요일 헤더 */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',background:'#f8fafc',borderBottom:'1px solid #e5e7eb'}}>
+          {['월','화','수','목','금','토','일'].map((d,i)=>(
+            <div key={d} style={{textAlign:'center',fontSize:'12px',fontWeight:700,color:i>=5?'#ef4444':'#555',padding:'8px 4px',borderRight:i<6?'1px solid #f0f0f0':'none'}}>{d}</div>
+          ))}
+        </div>
+        {/* 주차별 행 */}
+        {(()=>{
+          const days=getCalDays();
+          const weeks=[];
+          for(let i=0;i<days.length;i+=7)weeks.push(days.slice(i,i+7));
+          return weeks.map((week,wi)=>(
+            <div key={wi} style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',borderBottom:wi<weeks.length-1?'1px solid #e5e7eb':'none',minHeight:'90px'}}>
+              {week.map((d,di)=>{
+                if(!d)return <div key={'e'+wi+di} style={{background:'#fafafa',borderRight:di<6?'1px solid #f0f0f0':'none'}}/>;
+                const ds=calDateStr(d);const isT=ds===today;const isSel=ds===calSelDate;
+                const dow=new Date(calMonth.y,calMonth.m,d).getDay();const isWE=dow===0||dow===6;
+                const sched=getDateSchedule(ds);const done2=getDatePatrols(ds);
+                const isWeekday=dow>=1&&dow<=5;
+                const calDk=isWeekday?DAY_KEYS[(dow+6)%7]:null;
+                const calEditDay2=()=>{
+                  if(!calDk)return;
+                  const dd=new Date(ds);const jan1=new Date(dd.getFullYear(),0,1);
+                  const d2=Math.floor((dd-jan1)/86400000);
+                  const wk=dd.getFullYear()+'-W'+String(Math.ceil((d2+jan1.getDay()+1)/7)).padStart(2,'0');
+                  setScheduleWeek(wk);startEdit(calDk,wk);
+                };
+                return(<div key={d} style={{padding:'4px',borderRight:di<6?'1px solid #f0f0f0':'none',
+                  background:isSel?'#e0f2fe':isT?'#f0f9ff':isWE?'#fafafa':'#fff',cursor:'pointer',transition:'background .1s',position:'relative'}}
+                  onClick={()=>setCalSelDate(isSel?null:ds)}>
+                  {/* 날짜 헤더 */}
+                  <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'2px'}}>
+                    <span style={{fontSize:'12px',fontWeight:isT?800:600,color:isWE?'#ef4444':isT?acc:'#555',
+                      ...(isT?{background:acc,color:'#fff',width:'22px',height:'22px',borderRadius:'50%',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:'11px'}:{})
+                    }}>{d}</span>
+                    {isWeekday&&<button onClick={e=>{e.stopPropagation();calEditDay2()}} style={{background:'none',border:'none',cursor:'pointer',padding:'2px',opacity:0.4,transition:'opacity .15s'}}
+                      onMouseOver={e=>e.currentTarget.style.opacity=1} onMouseOut={e=>e.currentTarget.style.opacity=0.4}>
+                      <Icon name="Plus" size={12} style={{color:'#888'}}/>
+                    </button>}
+                  </div>
+                  {/* 배정 목록 */}
+                  <div style={{display:'flex',flexDirection:'column',gap:'2px'}}>
+                    {sched.map((item,si)=>{
+                      const zd=SP_ZONES.find(z=>z.id===item.zoneId)||{icon:'📋',name:item.zoneId,color:'#888'};
+                      const comp=done2.some(p=>p.inspector===item.name&&(p.zoneId===item.zoneId||p.zone===zd.name));
+                      return(<div key={si} style={{display:'flex',alignItems:'center',gap:'2px',padding:'2px 4px',borderRadius:'4px',fontSize:'10px',
+                        background:comp?'#dcfce7':zd.color+'12',borderLeft:`3px solid ${comp?'#22c55e':zd.color}`}}>
+                        {comp&&<span style={{fontSize:'8px'}}>✅</span>}
+                        <span style={{fontWeight:700,color:comp?'#166534':'#333',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.name}</span>
+                        <span style={{color:zd.color,fontWeight:600,fontSize:'9px',flexShrink:0}}>{zd.name}</span>
+                      </div>);
+                    })}
+                    {/* 직접 입력 점검 */}
+                    {done2.filter(p=>!sched.some(s=>s.name===p.inspector&&(s.zoneId===p.zoneId||SP_ZONES.find(z=>z.id===s.zoneId)?.name===p.zone))).map((p,pi)=>{
+                      const zd=SP_ZONES.find(z=>z.id===p.zoneId||z.name===p.zone)||{icon:'📋',color:'#22c55e'};
+                      return(<div key={'x'+pi} style={{display:'flex',alignItems:'center',gap:'2px',padding:'2px 4px',borderRadius:'4px',fontSize:'10px',
+                        background:'#dcfce7',borderLeft:'3px solid #22c55e'}}>
+                        <span style={{fontSize:'8px'}}>✅</span>
+                        <span style={{fontWeight:700,color:'#166534'}}>{p.inspector}</span>
+                        <span style={{color:zd.color,fontWeight:600,fontSize:'9px'}}>{p.zone}</span>
+                      </div>);
+                    })}
+                  </div>
+                </div>);
+              })}
+            </div>
+          ));
+        })()}
+      </div>
+      {/* 범례 */}
+      <div style={{display:'flex',gap:'16px',justifyContent:'center',marginTop:'10px',fontSize:'11px',color:'#888'}}>
+        {SP_ZONES.map(z=>(
+          <span key={z.id} style={{display:'flex',alignItems:'center',gap:'3px'}}><div style={{width:'10px',height:'4px',borderRadius:'2px',background:z.color}}/> {z.name}</span>
+        ))}
+        <span style={{display:'flex',alignItems:'center',gap:'3px'}}><div style={{width:'10px',height:'4px',borderRadius:'2px',background:'#22c55e'}}/> 완료</span>
+      </div>
+      </>)}
       {/* Edit modal */}
       {editDay&&(
         <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.4)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>setEditDay(null)}>
@@ -2014,6 +2300,21 @@ function SafetyPatrolApp({onBack}){
             <div style={{display:'flex',gap:'8px',marginTop:'8px'}}>
               <button onClick={()=>setEditDay(null)} style={{flex:1,padding:'10px',background:'#f3f4f6',border:'none',borderRadius:'8px',fontSize:'13px',fontWeight:600,cursor:'pointer'}}>취소</button>
               <button onClick={saveEdit} style={{flex:1,padding:'10px',background:grd,color:'#fff',border:'none',borderRadius:'8px',fontSize:'13px',fontWeight:700,cursor:'pointer'}}>저장</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 본인 확인 모달 */}
+      {confirmItem&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.45)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}} onClick={()=>setConfirmItem(null)}>
+          <div onClick={e=>e.stopPropagation()} className="pop-in" style={{background:'#fff',borderRadius:'20px',padding:'28px',width:'100%',maxWidth:'320px',textAlign:'center',boxShadow:'0 20px 60px rgba(0,0,0,.25)'}}>
+            <div style={{fontSize:'40px',marginBottom:'12px'}}>👤</div>
+            <div style={{fontSize:'18px',fontWeight:800,color:'#333',marginBottom:'4px'}}>{confirmItem.item.name}</div>
+            <div style={{fontSize:'12px',color:'#888',marginBottom:'20px'}}>본인이 맞습니까?</div>
+            <div style={{display:'flex',gap:'8px'}}>
+              <button onClick={confirmNo} style={{flex:1,padding:'12px',background:'#f3f4f6',border:'none',borderRadius:'10px',fontSize:'14px',fontWeight:700,cursor:'pointer',color:'#555'}}>아니오</button>
+              <button onClick={confirmYes} style={{flex:1,padding:'12px',background:grd,color:'#fff',border:'none',borderRadius:'10px',fontSize:'14px',fontWeight:700,cursor:'pointer',boxShadow:'0 4px 12px rgba(14,165,233,.3)'}}>네, 맞습니다</button>
             </div>
           </div>
         </div>
@@ -2186,80 +2487,173 @@ function SafetyPatrolApp({onBack}){
 
   // ===== 목록 탭 =====
   const ListTab=()=>{
+    const[viewMode,setViewMode]=useState('person'); // 'person' | 'zone'
+    const[selGroup,setSelGroup]=useState(null); // selected person or zone
     const[expandId,setExpandId]=useState(null);
-    const[filterZone,setFilterZone]=useState('all');
-    const filtered=patrols.filter(p=>filterZone==='all'||p.zoneId===filterZone||p.zone===SP_ZONES.find(z=>z.id===filterZone)?.name);
 
-    return(<div style={{padding:'16px',maxWidth:'600px',margin:'0 auto'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'12px'}}>
-        <span style={{fontSize:'13px',fontWeight:600,color:'#666'}}>총 <span style={{color:acc,fontWeight:800}}>{filtered.length}</span>건</span>
-        <select value={filterZone} onChange={e=>setFilterZone(e.target.value)} style={{padding:'4px 10px',borderRadius:'6px',border:'1px solid #ddd',fontSize:'12px'}}>
-          <option value="all">전체 구역</option>
-          {SP_ZONES.map(z=>(<option key={z.id} value={z.id}>{z.name}</option>))}
-        </select>
-      </div>
-      {filtered.length===0?(
-        <div style={{textAlign:'center',padding:'40px',color:'#999'}}>
-          <div style={{fontSize:'36px',marginBottom:'8px'}}>📋</div>
-          <p style={{fontSize:'13px',fontWeight:600}}>점검 내역이 없습니다</p>
-        </div>
-      ):(
-        <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
-          {filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(p=>{
-            const zoneData=SP_ZONES.find(z=>z.id===p.zoneId||z.name===p.zone)||{icon:'📋',color:'#666',questions:[]};
-            const ans=p.answers||{};
-            const yCount=Object.values(ans).filter(a=>a.result==='Y').length;
-            const nCount=Object.values(ans).filter(a=>a.result==='N').length;
-            const expanded=expandId===p.id;
-            return(<div key={p.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
-              <div onClick={()=>setExpandId(expanded?null:p.id)} style={{padding:'12px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px'}}>
-                <span style={{fontSize:'20px'}}>{zoneData.icon}</span>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
-                    <span style={{fontSize:'12px',fontWeight:800,color:zoneData.color}}>{p.zone}</span>
-                    <span style={{fontSize:'11px',color:'#999'}}>{p.date}</span>
-                  </div>
-                  <div style={{fontSize:'11px',color:'#666'}}>점검자: {p.inspector}</div>
-                </div>
-                <div style={{display:'flex',gap:'4px',flexShrink:0}}>
-                  {yCount>0&&<span style={{fontSize:'10px',fontWeight:700,padding:'2px 6px',borderRadius:'4px',background:'#dcfce7',color:'#166534'}}>Y:{yCount}</span>}
-                  {nCount>0&&<span style={{fontSize:'10px',fontWeight:700,padding:'2px 6px',borderRadius:'4px',background:'#fee2e2',color:'#991b1b'}}>N:{nCount}</span>}
-                </div>
-                <Icon name={expanded?"ChevronUp":"ChevronDown"} size={16} style={{color:'#ccc'}}/>
+    // 그룹핑
+    const personGroups=useMemo(()=>{
+      const map={};
+      patrols.forEach(p=>{
+        if(!map[p.inspector])map[p.inspector]={name:p.inspector,count:0,latest:'',zones:new Set()};
+        map[p.inspector].count++;
+        map[p.inspector].zones.add(p.zone||p.zoneId);
+        if(!map[p.inspector].latest||p.date>map[p.inspector].latest)map[p.inspector].latest=p.date;
+      });
+      return Object.values(map).sort((a,b)=>b.latest.localeCompare(a.latest));
+    },[patrols]);
+
+    const zoneGroups=useMemo(()=>{
+      const map={};
+      patrols.forEach(p=>{
+        const zKey=p.zoneId||p.zone;
+        const zd=SP_ZONES.find(z=>z.id===zKey||z.name===p.zone)||{icon:'📋',name:p.zone,color:'#888'};
+        if(!map[zd.name])map[zd.name]={name:zd.name,zoneId:zKey,icon:zd.icon,color:zd.color,count:0,latest:''};
+        map[zd.name].count++;
+        if(!map[zd.name].latest||p.date>map[zd.name].latest)map[zd.name].latest=p.date;
+      });
+      return Object.values(map).sort((a,b)=>b.latest.localeCompare(a.latest));
+    },[patrols]);
+
+    const filtered=selGroup?patrols.filter(p=>
+      viewMode==='person'?p.inspector===selGroup:
+      (p.zoneId===selGroup||p.zone===selGroup||p.zone===SP_ZONES.find(z=>z.id===selGroup)?.name)
+    ).sort((a,b)=>(b.date||'').localeCompare(a.date||'')):[];
+
+    // 세부내역 렌더
+    const renderDetail=(p)=>{
+      const zoneData=SP_ZONES.find(z=>z.id===p.zoneId||z.name===p.zone)||{icon:'📋',color:'#666',questions:[]};
+      const ans=p.answers||{};
+      return(<div style={{padding:'0 12px 12px',borderTop:'1px solid #f3f4f6'}}>
+        {zoneData.questions.map(q=>{
+          const a=ans[q.no]||{};
+          if(!a.result)return null;
+          return(<div key={q.no} style={{padding:'8px 0',borderBottom:'1px solid #f5f5f5'}}>
+            <div style={{display:'flex',gap:'6px',alignItems:'flex-start',marginBottom:'4px'}}>
+              <span style={{fontSize:'10px',fontWeight:800,color:zoneData.color,background:zoneData.color+'15',padding:'2px 6px',borderRadius:'4px',flexShrink:0}}>Q{q.no}</span>
+              <span style={{padding:'2px 8px',borderRadius:'4px',fontWeight:700,fontSize:'10px',flexShrink:0,
+                ...(a.result==='Y'?{background:'#dcfce7',color:'#166534'}:a.result==='N'?{background:'#fee2e2',color:'#991b1b'}:{background:'#f3f4f6',color:'#666'})
+              }}>{a.result}</span>
+            </div>
+            <p style={{fontSize:'11px',color:'#555',lineHeight:1.5,margin:'0 0 0 0',whiteSpace:'pre-line'}}>{q.text}</p>
+            {a.comment&&<div style={{marginTop:'4px',fontSize:'11px',color:'#0369a1',background:'#f0f9ff',padding:'4px 8px',borderRadius:'4px'}}>💬 {a.comment}</div>}
+            {/* Sub answer */}
+            {q.sub&&ans[q.sub.no]?.comment&&(
+              <div style={{marginTop:'4px',marginLeft:'8px',padding:'6px 8px',background:'#fffbeb',borderRadius:'6px',border:'1px solid #fde68a'}}>
+                <span style={{fontSize:'10px',fontWeight:700,color:'#92400e'}}>Q{q.sub.no}</span>
+                <p style={{fontSize:'11px',color:'#78350f',margin:'2px 0 0',lineHeight:1.4}}>{ans[q.sub.no].comment}</p>
               </div>
-              {expanded&&(
-                <div style={{padding:'0 12px 12px',borderTop:'1px solid #f3f4f6'}}>
-                  {zoneData.questions.map(q=>{
-                    const a=ans[q.no]||{};
-                    if(!a.result)return null;
-                    return(<div key={q.no} style={{display:'flex',gap:'6px',padding:'4px 0',fontSize:'11px',borderBottom:'1px solid #fafafa'}}>
-                      <span style={{fontWeight:700,color:'#888',width:'24px',flexShrink:0}}>Q{q.no}</span>
-                      <span style={{padding:'1px 6px',borderRadius:'3px',fontWeight:700,fontSize:'10px',flexShrink:0,
-                        ...(a.result==='Y'?{background:'#dcfce7',color:'#166534'}:a.result==='N'?{background:'#fee2e2',color:'#991b1b'}:{background:'#f3f4f6',color:'#666'})
-                      }}>{a.result}</span>
-                      <span style={{color:'#666',flex:1}}>{a.comment||''}</span>
-                    </div>);
-                  })}
-                  {/* Sub answers */}
-                  {zoneData.questions.filter(q=>q.sub&&ans[q.sub.no]?.comment).map(q=>(
-                    <div key={q.sub.no} style={{display:'flex',gap:'6px',padding:'4px 0',fontSize:'11px',borderBottom:'1px solid #fafafa'}}>
-                      <span style={{fontWeight:700,color:'#d97706',width:'24px',flexShrink:0}}>Q{q.sub.no}</span>
-                      <span style={{color:'#78350f',flex:1}}>{ans[q.sub.no].comment}</span>
-                    </div>
-                  ))}
-                  {p.findings&&(
-                    <div style={{marginTop:'6px',padding:'8px',background:'#fef3c7',borderRadius:'6px',fontSize:'11px'}}>
-                      <span style={{fontWeight:700,color:'#92400e'}}>Findings: </span>
-                      <span style={{color:'#78350f'}}>{p.findings}</span>
-                    </div>
-                  )}
-                  <button onClick={()=>delPatrol(p.id)} style={{marginTop:'8px',padding:'6px 12px',background:'#fee2e2',color:'#991b1b',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:600,cursor:'pointer'}}>삭제</button>
-                </div>
-              )}
-            </div>);
-          })}
+            )}
+          </div>);
+        })}
+        {p.findings&&(
+          <div style={{marginTop:'8px',padding:'8px',background:'#fef3c7',borderRadius:'6px',fontSize:'11px'}}>
+            <span style={{fontWeight:700,color:'#92400e'}}>⚠️ Findings: </span>
+            <span style={{color:'#78350f'}}>{p.findings}</span>
+          </div>
+        )}
+        <button onClick={()=>delPatrol(p.id)} style={{marginTop:'8px',padding:'6px 12px',background:'#fee2e2',color:'#991b1b',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:600,cursor:'pointer'}}>삭제</button>
+      </div>);
+    };
+
+    // 그룹 선택 전: 목록
+    if(!selGroup){
+      return(<div style={{padding:'16px',maxWidth:'600px',margin:'0 auto'}}>
+        {/* 모드 전환 */}
+        <div style={{display:'flex',gap:'4px',marginBottom:'16px',background:'#f3f4f6',borderRadius:'10px',padding:'3px'}}>
+          {[{id:'person',label:'👤 점검자별'},{id:'zone',label:'📍 구역별'}].map(m=>(
+            <button key={m.id} onClick={()=>setViewMode(m.id)} style={{flex:1,padding:'8px',borderRadius:'8px',border:'none',fontSize:'12px',fontWeight:700,cursor:'pointer',transition:'all .2s',
+              background:viewMode===m.id?'#fff':'transparent',color:viewMode===m.id?acc:'#888',boxShadow:viewMode===m.id?'0 1px 4px rgba(0,0,0,.1)':'none'
+            }}>{m.label}</button>
+          ))}
         </div>
-      )}
+
+        <div style={{fontSize:'12px',color:'#888',marginBottom:'8px'}}>총 <span style={{fontWeight:800,color:acc}}>{patrols.length}</span>건</div>
+
+        {patrols.length===0?(
+          <div style={{textAlign:'center',padding:'40px',color:'#999'}}>
+            <div style={{fontSize:'36px',marginBottom:'8px'}}>📋</div>
+            <p style={{fontSize:'13px',fontWeight:600}}>점검 내역이 없습니다</p>
+          </div>
+        ):(
+          <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+            {viewMode==='person'?personGroups.map(g=>(
+              <button key={g.name} onClick={()=>setSelGroup(g.name)} style={{display:'flex',alignItems:'center',gap:'10px',padding:'12px',background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',cursor:'pointer',textAlign:'left',transition:'all .15s',width:'100%'}}
+                onMouseOver={e=>e.currentTarget.style.borderColor=acc} onMouseOut={e=>e.currentTarget.style.borderColor='#e5e7eb'}>
+                <div style={{width:'36px',height:'36px',borderRadius:'10px',background:'#e0f2fe',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                  <Icon name="User" size={18} style={{color:acc}}/>
+                </div>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:'13px',fontWeight:700,color:'#333'}}>{g.name}</div>
+                  <div style={{fontSize:'10px',color:'#999'}}>{[...g.zones].join(', ')}</div>
+                </div>
+                <div style={{textAlign:'right',flexShrink:0}}>
+                  <div style={{fontSize:'14px',fontWeight:800,color:acc}}>{g.count}<span style={{fontSize:'10px',color:'#999'}}>건</span></div>
+                  <div style={{fontSize:'10px',color:'#bbb'}}>{g.latest}</div>
+                </div>
+                <Icon name="ChevronRight" size={16} style={{color:'#ccc'}}/>
+              </button>
+            )):zoneGroups.map(g=>(
+              <button key={g.name} onClick={()=>setSelGroup(g.zoneId)} style={{display:'flex',alignItems:'center',gap:'10px',padding:'12px',background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',cursor:'pointer',textAlign:'left',transition:'all .15s',width:'100%'}}
+                onMouseOver={e=>e.currentTarget.style.borderColor=g.color} onMouseOut={e=>e.currentTarget.style.borderColor='#e5e7eb'}>
+                <div style={{width:'36px',height:'36px',borderRadius:'10px',background:g.color+'15',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'20px',flexShrink:0}}>{g.icon}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:'13px',fontWeight:700,color:g.color}}>{g.name}</div>
+                </div>
+                <div style={{textAlign:'right',flexShrink:0}}>
+                  <div style={{fontSize:'14px',fontWeight:800,color:g.color}}>{g.count}<span style={{fontSize:'10px',color:'#999'}}>건</span></div>
+                  <div style={{fontSize:'10px',color:'#bbb'}}>{g.latest}</div>
+                </div>
+                <Icon name="ChevronRight" size={16} style={{color:'#ccc'}}/>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>);
+    }
+
+    // 그룹 선택 후: 해당 그룹 점검 목록
+    const groupLabel=viewMode==='person'?selGroup:(SP_ZONES.find(z=>z.id===selGroup)?.name||selGroup);
+    const groupIcon=viewMode==='person'?null:SP_ZONES.find(z=>z.id===selGroup);
+    return(<div style={{padding:'16px',maxWidth:'600px',margin:'0 auto'}}>
+      <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'16px'}}>
+        <button onClick={()=>{setSelGroup(null);setExpandId(null)}} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={16}/></button>
+        {groupIcon&&<span style={{fontSize:'20px'}}>{groupIcon.icon}</span>}
+        <div style={{flex:1}}>
+          <div style={{fontSize:'14px',fontWeight:800,color:'#333'}}>{groupLabel}</div>
+          <div style={{fontSize:'10px',color:'#888'}}>{filtered.length}건</div>
+        </div>
+      </div>
+
+      <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+        {filtered.map(p=>{
+          const zoneData=SP_ZONES.find(z=>z.id===p.zoneId||z.name===p.zone)||{icon:'📋',color:'#666',questions:[]};
+          const ans=p.answers||{};
+          const yCount=Object.values(ans).filter(a=>a.result==='Y').length;
+          const nCount=Object.values(ans).filter(a=>a.result==='N').length;
+          const expanded=expandId===p.id;
+          return(<div key={p.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
+            <div onClick={()=>setExpandId(expanded?null:p.id)} style={{padding:'12px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px'}}>
+              <span style={{fontSize:'20px'}}>{zoneData.icon}</span>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:'flex',alignItems:'center',gap:'6px',marginBottom:'2px'}}>
+                  {viewMode==='zone'&&<span style={{fontSize:'12px',fontWeight:700,color:'#333'}}>{p.inspector}</span>}
+                  {viewMode==='person'&&<span style={{fontSize:'12px',fontWeight:800,color:zoneData.color}}>{p.zone}</span>}
+                  <span style={{fontSize:'11px',color:'#999'}}>{p.date}</span>
+                </div>
+                {viewMode==='zone'&&<div style={{fontSize:'10px',color:'#999'}}>점검자: {p.inspector}</div>}
+                {viewMode==='person'&&<div style={{fontSize:'10px',color:'#999'}}>{zoneData.name}</div>}
+              </div>
+              <div style={{display:'flex',gap:'4px',flexShrink:0}}>
+                {yCount>0&&<span style={{fontSize:'10px',fontWeight:700,padding:'2px 6px',borderRadius:'4px',background:'#dcfce7',color:'#166534'}}>Y:{yCount}</span>}
+                {nCount>0&&<span style={{fontSize:'10px',fontWeight:700,padding:'2px 6px',borderRadius:'4px',background:'#fee2e2',color:'#991b1b'}}>N:{nCount}</span>}
+              </div>
+              <Icon name={expanded?"ChevronUp":"ChevronDown"} size={16} style={{color:'#ccc'}}/>
+            </div>
+            {expanded&&renderDetail(p)}
+          </div>);
+        })}
+      </div>
     </div>);
   };
 
