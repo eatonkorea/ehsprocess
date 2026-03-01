@@ -130,9 +130,8 @@ function GenericList({items,setItems,type}){
   return(<div className="slide-up"><div className="relative mb-4"><div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Icon name="Search" size={18}/></div><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="검색..." className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm"/></div><p className="text-sm text-gray-500 mb-3">총 <span className="font-bold text-blue-600">{filtered.length}</span>건</p>{filtered.length===0?(<div className="text-center py-16 text-gray-400"><Icon name="Inbox" size={48} className="mx-auto mb-3 text-gray-300"/><p>데이터가 없습니다</p></div>):(<div className="space-y-3">{filtered.map(item=>{const mainText=item.content||item.finding||item.description||'';const td=item.topicId?PI_TOPICS.find(t=>t.id===item.topicId):null;return(<div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover"><div className="p-4 cursor-pointer" onClick={()=>setEid(eid===item.id?null:item.id)}><div className="flex items-start justify-between mb-2"><div className="flex items-center gap-2 flex-wrap">{item.observationType&&<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${item.observationType==='positive'?'bg-green-100 text-green-700':'bg-orange-100 text-orange-700'}`}>{item.observationType==='positive'?'긍정적 행동':'안전 이슈'}</span>}{item.status&&<span className={`px-2 py-0.5 rounded-full text-xs font-medium ${sc(item.status)}`}>{item.status}</span>}<span className="text-xs text-gray-400">{item.date}</span></div><Icon name={eid===item.id?"ChevronUp":"ChevronDown"} size={18} className="text-gray-400 flex-shrink-0"/></div>{td&&<p className="text-xs font-semibold text-blue-600 mb-1">{td.title} · {td.titleKo}</p>}<p className="text-sm font-medium text-gray-800 line-clamp-2">{mainText}</p><div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">{item.name&&<span className="flex items-center gap-1"><Icon name="User" size={12}/>{item.name}</span>}{item.department&&<span className="flex items-center gap-1"><Icon name="Building2" size={12}/>{item.department}</span>}{item.dept&&<span className="flex items-center gap-1"><Icon name="Building2" size={12}/>{item.dept}</span>}{item.module&&<span className="flex items-center gap-1"><Icon name="Box" size={12}/>{item.module}</span>}{item.dueDate&&<span className="flex items-center gap-1"><Icon name="Calendar" size={12}/>{item.dueDate}</span>}</div></div>{eid===item.id&&(<div className="border-t border-gray-100 p-4 bg-gray-50 fade-in"><div className="space-y-2 text-sm">{td&&<div className="p-3 bg-blue-50 rounded-lg text-xs text-blue-800 mb-2"><p className="font-medium mb-1">{td.en}</p><p className="text-blue-600">{td.ko}</p></div>}{item.actionItem&&<div><span className="text-gray-500">Action:</span> <span className="font-medium">{item.actionItem}</span></div>}{item.closeDate&&<div><span className="text-gray-500">Close:</span> <span className="font-medium">{item.closeDate}</span></div>}{item.remark&&<div><span className="text-gray-500">Remark:</span> <span className="font-medium">{item.remark}</span></div>}{item.riskLevel&&<div><span className="text-gray-500">Risk:</span> <span className="font-medium">{item.riskLevel}</span></div>}</div><button onClick={()=>del(item.id)} className="mt-3 text-red-500 text-sm flex items-center gap-1 hover:text-red-700"><Icon name="Trash2" size={14}/> 삭제</button></div>)}</div>)})}</div>)}</div>)}
 
 // ===== MAIN APP =====
-function App(){const[screen,setScreen]=useState('home');const handleSelect=(id)=>{setScreen(id)};if(screen==='home')return<HomeScreen onSelect={handleSelect}/>;if(screen==='pi')return<PIApp onBack={()=>setScreen('home')}/>;if(screen==='gemba')return<GembaApp onBack={()=>setScreen('home')}/>;if(screen==='wra')return<WRAApp onBack={()=>setScreen('home')}/>;if(screen==='safety')return<SafetyApp onBack={()=>setScreen('home')}/>;if(screen==='sio')return<EmbedApp title="SIO" url="https://eatonkorea.github.io/eatonsio/" gradient="linear-gradient(135deg,#ff6b6b,#ee5a24)" emoji="🚨" onBack={()=>setScreen('home')}/>;if(screen==='lgemba')return<EmbedApp title="Leadership Gemba Walk" url="https://eatonkorea.github.io/gembawalk/" gradient="linear-gradient(135deg,#a18cd1,#fbc2eb)" emoji="👥" onBack={()=>setScreen('home')}/>;if(screen==='patrol')return<SafetyPatrolApp onBack={()=>setScreen('home')}/>;if(screen==='fives')return<PlaceholderApp title="5S+" icon="Sparkles" color="#f59e0b" onBack={()=>setScreen('home')}/>;if(screen==='ci')return<CIPointApp onBack={()=>setScreen('home')}/>;}
+function App(){const[screen,setScreen]=useState('home');const handleSelect=(id)=>{setScreen(id)};if(screen==='home')return<HomeScreen onSelect={handleSelect}/>;if(screen==='pi')return<PIApp onBack={()=>setScreen('home')}/>;if(screen==='gemba')return<GembaApp onBack={()=>setScreen('home')}/>;if(screen==='wra')return<WRAApp onBack={()=>setScreen('home')}/>;if(screen==='safety')return<SafetyApp onBack={()=>setScreen('home')}/>;if(screen==='sio')return<EmbedApp title="SIO" url="https://eatonkorea.github.io/eatonsio/" gradient="linear-gradient(135deg,#ff6b6b,#ee5a24)" emoji="🚨" onBack={()=>setScreen('home')}/>;if(screen==='lgemba')return<EmbedApp title="Leadership Gemba Walk" url="https://eatonkorea.github.io/gembawalk/" gradient="linear-gradient(135deg,#a18cd1,#fbc2eb)" emoji="👥" onBack={()=>setScreen('home')}/>;if(screen==='patrol')return<SafetyPatrolApp onBack={()=>setScreen('home')}/>;if(screen==='fives')return<FiveSAuditApp onBack={()=>setScreen('home')}/>;if(screen==='ci')return<CIPointApp onBack={()=>setScreen('home')}/>;}
 function EmbedApp({title,url,onBack,gradient='linear-gradient(135deg,#667eea,#764ba2)',emoji='📱'}){const[loading,setLoading]=useState(true);return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f0f4ff'}}><div style={{flexShrink:0,padding:'10px 16px',background:gradient,display:'flex',alignItems:'center',gap:'10px',zIndex:10}}><button onClick={onBack} style={{background:'rgba(255,255,255,.15)',border:'none',cursor:'pointer',color:'#fff',padding:'4px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'10px',width:'34px',height:'34px'}}><Icon name="ArrowLeft" size={20}/></button><span style={{fontSize:'24px'}}>{emoji}</span><h1 style={{fontSize:'15px',fontWeight:800,margin:0,color:'#fff'}}>{title}</h1></div>{loading&&<div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',textAlign:'center',zIndex:5}}><div style={{width:'36px',height:'36px',border:'3px solid #e5e7eb',borderTop:'3px solid #667eea',borderRadius:'50%',animation:'spin 1s linear infinite',margin:'0 auto 8px'}}/><p style={{fontSize:'13px',color:'#999'}}>로딩 중...</p></div>}<iframe src={url} onLoad={()=>setLoading(false)} style={{flex:1,border:'none',width:'100%'}} allow="clipboard-write"/></div>)}
-function PlaceholderApp({title,icon,color,onBack}){return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f9fafb'}}><div style={{padding:'16px',background:'#fff',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',gap:'10px'}}><button onClick={onBack} style={{background:'none',border:'none',cursor:'pointer',color:'#888',padding:'4px'}}><Icon name="ArrowLeft" size={20}/></button><div style={{width:'32px',height:'32px',background:color,borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name={icon} size={18} className="text-white"/></div><h1 style={{fontSize:'16px',fontWeight:700,margin:0}}>{title}</h1></div><div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:'12px'}}><div style={{width:'64px',height:'64px',background:color+'20',borderRadius:'16px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name={icon} size={32} style={{color}}/></div><p style={{fontSize:'16px',fontWeight:600,color:'#333'}}>{title}</p><p style={{fontSize:'13px',color:'#999'}}>준비 중입니다</p></div></div>)}
 
 // ===== Home Screen =====
 function HomeScreen({onSelect}){
@@ -144,11 +143,10 @@ function HomeScreen({onSelect}){
     {id:'wra',emoji:'📊',label:'WRA',sub:'Workstation Risk Assessment',gradient:'linear-gradient(135deg,#fa709a,#fee140)',devices:['PC']},
     {id:'safety',emoji:'🛡️',label:'Safety\nTracker',sub:'안전 현황 대시보드',gradient:'linear-gradient(135deg,#667eea,#764ba2)',devices:['PC']},
     {id:'ci',emoji:'🎯',label:'CI Point',sub:'Continuous Improvement',gradient:'linear-gradient(135deg,#f59e0b,#f97316)',devices:['PC','Mobile']},
-    {id:'patrol',emoji:'👁️',label:'Safety\nPatrol',sub:'안전 순찰 점검',gradient:'linear-gradient(135deg,#0ea5e9,#06b6d4)',devices:['PC','Mobile']}
+    {id:'patrol',emoji:'👁️',label:'Safety\nPatrol',sub:'안전 순찰 점검',gradient:'linear-gradient(135deg,#0ea5e9,#06b6d4)',devices:['PC','Mobile']},
+    {id:'fives',emoji:'✨',label:'5S+\nAudit',sub:'5S Plus 점검',gradient:'linear-gradient(135deg,#f59e0b,#d97706)',devices:['PC','Mobile']}
   ];
-  const dis=[
-    {id:'fives',emoji:'✨',label:'5S+',sub:'5S Plus 활동'}
-  ];
+  const dis=[];
   return(<div className="min-h-screen" style={{background:'#f0f4ff'}}>
     {/* Hero Banner */}
     <div style={{background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',padding:'36px 24px 52px',borderRadius:'0 0 40px 40px',position:'relative',overflow:'hidden',maxWidth:'900px',margin:'0 auto'}}>
@@ -189,7 +187,7 @@ function HomeScreen({onSelect}){
     </div>
 
     {/* Coming Soon */}
-    <div style={{padding:'8px 16px 16px',maxWidth:'680px',margin:'0 auto'}}>
+    {dis.length>0&&(<div style={{padding:'8px 16px 16px',maxWidth:'680px',margin:'0 auto'}}>
       <div style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'12px'}}>
         <div style={{height:'1px',flex:1,background:'#d0d7e3'}}/>
         <span style={{fontSize:'10px',fontWeight:700,color:'#a0aec0',letterSpacing:'2px'}}>COMING SOON</span>
@@ -204,7 +202,7 @@ function HomeScreen({onSelect}){
           </div>
         ))}
       </div>
-    </div>
+    </div>)}
 
     {/* Footer */}
     <div style={{padding:'12px 16px 28px',textAlign:'center',maxWidth:'680px',margin:'0 auto'}}>
@@ -1752,6 +1750,331 @@ const SP_ZONES=[
     {no:'7',text:'[작업자 인터뷰-Positive feedback] 작업자의 안전을 위해 Positive feedback을 하였는가?',sub:{no:'7-1',text:'어떤 Positive feedback를 하였는가? / 하지 못한 이유는?',type:'text',trigger:'any'}}
   ]}
 ];
+
+// ===== 5S+ Audit Data =====
+const FIVE_S_CATS=[
+  {id:'1S',name:'정리',nameEn:'SORT',color:'#3b82f6',icon:'🔵',desc:'필요한 것과 불필요한 것의 구별'},
+  {id:'2S',name:'정돈',nameEn:'STRAIGHTEN',color:'#8b5cf6',icon:'🟣',desc:'필요한 것을 보관하는 표준화'},
+  {id:'3S',name:'청소',nameEn:'SHINE',color:'#10b981',icon:'🟢',desc:'바닥과 설비를 깨끗하게 유지'},
+  {id:'4S',name:'청결',nameEn:'STANDARDIZE',color:'#f59e0b',icon:'🟡',desc:'3S가 유지되도록 표준화'},
+  {id:'5S',name:'습관화',nameEn:'SUSTAIN',color:'#ef4444',icon:'🔴',desc:'5S+ 절차를 습관으로 만듦'},
+];
+const FIVE_S_TYPES={
+  production:{name:'생산 (1층)',icon:'🏭',questions:[
+    {no:1,cat:'1S',text:'라인에는 필요한 표준 재공품(SWIP) 만 있음',pts:4},
+    {no:2,cat:'1S',text:'라인에는 공정에 필요한 설비만 있음',pts:4},
+    {no:3,cat:'1S',text:'작업을 하는데 필요한 도구만 있음',pts:4},
+    {no:4,cat:'1S',text:'작업에 불필요한 캐비닛, 선반, 스탠드 등이 없음',pts:5},
+    {no:5,cat:'1S',text:'작업에 불필요한 아이템 없음 (보루, 박스, 간지 등)',pts:4},
+    {no:6,cat:'2S',text:'보관 장소에는 보관되어 있는 것에 맞춰 라벨이 부착되어 있음',pts:5},
+    {no:7,cat:'2S',text:'보행로와 보관장소를 명확하게 알 수 있도록 라인 또는 표시가 되어 있음',pts:5},
+    {no:8,cat:'2S',text:'자주 사용하는 표준 도구들은 사용하기 쉽게 보관되어 있음',pts:5},
+    {no:9,cat:'2S',text:'개인 아이템은 적절하게 보관되어 있음',pts:4},
+    {no:10,cat:'2S',text:'모든 구역 이동이 가능한 설비는 바닥에 라인 구획이 되어 있음',pts:5},
+    {no:11,cat:'3S',text:'바닥/천장/벽은 깨끗하게 유지, 오일 누수, 버/칩, 떨어진 부품, 쓰레기, 누수 등이 없음',pts:5},
+    {no:12,cat:'3S',text:'복도는 깨끗하고 구획이 되어 있고, 방해물이 없음',pts:5},
+    {no:13,cat:'3S',text:'설비는 깨끗하게 닦여있고, 칩, 오일, 누유가 없음',pts:5},
+    {no:14,cat:'3S',text:'청소 도구는 적절한 곳에 보관되고, 식별되어 있음',pts:5},
+    {no:15,cat:'3S',text:'조명은 밝고 충분함',pts:4},
+    {no:16,cat:'4S',text:'일일 5S+ 체크시트가 있고 사용되고 있음',pts:5},
+    {no:17,cat:'4S',text:'리크, 먼지 등의 원인이 확인되고, 해결하기 위해 다뤄지고 있음',pts:5},
+    {no:18,cat:'4S',text:'작업자가 작업하는 동안 작업공간 청소를 실시함',pts:4},
+    {no:19,cat:'4S',text:'지난 달 5S+ Audit sheet가 있고, 점검 결과에 대한 조치가 완료되었음',pts:5},
+    {no:20,cat:'5S',text:'구역과 관련된 직원은 연간 5S+ 교육을 완료함',pts:4},
+    {no:21,cat:'5S',text:'구역과 관련된 직원은 구역의 5S+ 주인의식을 가지고 있음',pts:4},
+    {no:22,cat:'5S',text:'5S+는 생활화가 되었음 - 눈에 띄는 지속적 개선 활동이 보임',pts:4},
+  ]},
+  office:{name:'사무실 (Office)',icon:'🏢',questions:[
+    {no:1,cat:'1S',text:'근무 공간에는 필요한 물품만 있나요?',pts:5},
+    {no:2,cat:'1S',text:'사용하는 사무용품, 가구만 작업 공간에 있나요?',pts:5},
+    {no:3,cat:'1S',text:'참고적인 물품은 최소한으로 보관하고 정돈되어 있나요?',pts:4},
+    {no:4,cat:'1S',text:'개인 용품은 잘 정리되어 있나요?',pts:4},
+    {no:5,cat:'1S',text:'불필요한 캐비닛, 선반, 스탠드 없음',pts:4},
+    {no:6,cat:'2S',text:'설비와 작업공간은 Ergonomic을 고려하여 잘 정돈되어 있는가?',pts:4},
+    {no:7,cat:'2S',text:'사무 비품 (스테이플러 등)은 식별되고 깨끗하게 정돈되어 있는가?',pts:4},
+    {no:8,cat:'2S',text:'사무 비품은 쉽게 사용하고 되돌려 놓을 수 있나요?',pts:5},
+    {no:9,cat:'2S',text:'보관 용품은 깨끗하게 정리되어 있고 식별되어 있는가?',pts:5},
+    {no:10,cat:'2S',text:'문서는 지정된 보관 공간이 있고, 전자문서는 잘 정리되어 있음',pts:5},
+    {no:11,cat:'3S',text:'사무실 바닥은 서류, 사무 비품 스크랩 등이 없이 깨끗한가요?',pts:5},
+    {no:12,cat:'3S',text:'창문, 선반, 컴퓨터, 천장, 설비 등은 먼지 없이 깨끗한가요?',pts:4},
+    {no:13,cat:'3S',text:'작업공간의 조명은 밝고 충분한가요?',pts:4},
+    {no:14,cat:'3S',text:'출구, 안전 설비, 안전 알람, 소화전 앞에는 방해물이 없음',pts:5},
+    {no:15,cat:'3S',text:'청소도구는 쉽게 사용이 가능하고 보이는 곳에 보관되어 있나요?',pts:4},
+    {no:16,cat:'4S',text:'일일 5S+ 체크리스트가 있고, 회의실/개인 자리에 5S+ 자가점검표가 있음',pts:4},
+    {no:17,cat:'4S',text:'사무실과 설비의 주기적인 청소 스케줄이 있나요?',pts:4},
+    {no:18,cat:'4S',text:'지난 달 5S+ Audit sheet가 있고, 점검 결과에 대한 조치가 완료되었음',pts:5},
+    {no:19,cat:'4S',text:'쓰레기통과 재활용통은 주기적으로 치워지고 있나요?',pts:5},
+    {no:20,cat:'5S',text:'관련 직원은 연간 5S+ 교육을 완료함',pts:5},
+    {no:21,cat:'5S',text:'관련 직원은 구역의 5S+ 주인의식을 가지고 있음',pts:5},
+    {no:22,cat:'5S',text:'5S+는 생활화가 되었음 - 눈에 띄는 지속적 개선 활동이 보임',pts:5},
+  ]}
+};
+const FIVE_S_LEVELS=[
+  {min:96,max:100,label:'5S',color:'#16a34a',bg:'#dcfce7',desc:'최우수'},
+  {min:88,max:95,label:'4S',color:'#65a30d',bg:'#ecfccb',desc:'우수'},
+  {min:60,max:87,label:'3S',color:'#f59e0b',bg:'#fef3c7',desc:'보통'},
+  {min:40,max:59,label:'2S',color:'#f97316',bg:'#fed7aa',desc:'미흡'},
+  {min:0,max:39,label:'1S',color:'#ef4444',bg:'#fee2e2',desc:'개선필요'},
+];
+const getFiveSLevel=(score)=>FIVE_S_LEVELS.find(l=>score>=l.min&&score<=l.max)||FIVE_S_LEVELS[4];
+
+function FiveSAuditApp({onBack}){
+  const ADMIN_PW='eaton12!@';
+  const acc='#f59e0b';const grd='linear-gradient(135deg,#f59e0b,#d97706)';
+  const[tab,setTab]=useState('audit');
+  const[isAdmin,setIsAdmin]=useState(false);
+  const[auditType,setAuditType]=useState(null);
+  const[auditStarted,setAuditStarted]=useState(false);
+  const[audits,setAudits]=useState(()=>S.get('fiveS_audits',[]));
+  const[areas,setAreas]=useState(()=>S.get('fiveS_areas',{production:['FE','TCP','세척실','창고','측정실'],office:['Engineering','Quality','Finance','HR','MFG Office']}));
+  const[auditDate,setAuditDate]=useState(kstToday());
+  const[area,setArea]=useState('');
+  const[auditor,setAuditor]=useState('');
+  const[responsible,setResponsible]=useState('');
+  const[answers,setAnswers]=useState({});
+  const[expandedCat,setExpandedCat]=useState('1S');
+
+  useEffect(()=>{S.set('fiveS_audits',audits)},[audits]);
+  useEffect(()=>{S.set('fiveS_areas',areas)},[areas]);
+
+  const resetForm=()=>{setAuditType(null);setAuditStarted(false);setArea('');setAuditor('');setResponsible('');setAnswers({});setExpandedCat('1S');setAuditDate(kstToday());};
+  const questions=auditType?FIVE_S_TYPES[auditType].questions:[];
+  const totalPossible=questions.reduce((s,q)=>s+q.pts,0);
+  const currentScore=questions.reduce((s,q)=>s+(answers[q.no]?.result==='Y'?q.pts:0),0);
+  const answeredCount=Object.keys(answers).filter(k=>answers[k]?.result).length;
+  const setAnswer=(qno,field,value)=>{setAnswers(prev=>({...prev,[qno]:{...(prev[qno]||{}), [field]:value}}));};
+
+  const submitAudit=()=>{
+    if(!auditor.trim()){alert('점검자를 입력해주세요.');return;}
+    if(!area){alert('구역을 선택해주세요.');return;}
+    if(answeredCount<questions.length){if(!confirm(`아직 ${questions.length-answeredCount}문항이 미응답입니다. 제출하시겠습니까?`))return;}
+    const lvl=getFiveSLevel(currentScore);
+    const audit={id:'5S_'+Date.now(),date:auditDate,type:auditType,area,auditor:auditor.trim(),responsible:responsible.trim(),answers,score:currentScore,total:totalPossible,level:lvl.label,createdAt:new Date().toISOString()};
+    setAudits(prev=>[audit,...prev]);
+    alert(`✅ 5S+ Audit 제출 완료!\n점수: ${currentScore}/${totalPossible}점 (${lvl.label} - ${lvl.desc})`);
+    resetForm();
+  };
+
+  const checkAdmin=()=>{if(isAdmin)return true;const pw=prompt('관리자 비밀번호:');if(pw===ADMIN_PW){setIsAdmin(true);return true;}if(pw!==null)alert('비밀번호가 틀립니다.');return false;};
+
+  // === Audit Tab ===
+  const AuditTab=()=>{
+    // Step 1: 타입 선택
+    if(!auditType){
+      return(<div className="slide-up" style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+        <p style={{fontSize:'13px',color:'#888',textAlign:'center',margin:'8px 0'}}>점검 유형을 선택하세요</p>
+        {Object.entries(FIVE_S_TYPES).map(([key,t])=>(
+          <button key={key} onClick={()=>{setAuditType(key);setAuditStarted(false)}} style={{display:'flex',alignItems:'center',gap:'14px',padding:'20px',background:'#fff',borderRadius:'16px',border:'1px solid #e5e7eb',cursor:'pointer',textAlign:'left',transition:'all .2s',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}
+            onMouseOver={e=>{e.currentTarget.style.borderColor=acc;e.currentTarget.style.transform='translateY(-2px)'}}
+            onMouseOut={e=>{e.currentTarget.style.borderColor='#e5e7eb';e.currentTarget.style.transform='none'}}>
+            <span style={{fontSize:'36px'}}>{t.icon}</span>
+            <div style={{flex:1}}><div style={{fontSize:'15px',fontWeight:800,color:'#333'}}>{t.name}</div><div style={{fontSize:'11px',color:'#999',marginTop:'2px'}}>{t.questions.length}문항 · {t.questions.reduce((s,q)=>s+q.pts,0)}점 만점</div></div>
+            <Icon name="ChevronRight" size={20} style={{color:'#ccc'}}/>
+          </button>
+        ))}
+      </div>);
+    }
+    // Step 2: 정보 입력
+    if(!auditStarted){
+      const typeData=FIVE_S_TYPES[auditType]; const areaList=areas[auditType]||[];
+      return(<div className="slide-up" style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'4px'}}>
+          <button onClick={resetForm} style={{background:'#f3f4f6',border:'none',cursor:'pointer',borderRadius:'8px',width:'32px',height:'32px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={16}/></button>
+          <span style={{fontSize:'28px'}}>{typeData.icon}</span>
+          <div><div style={{fontSize:'15px',fontWeight:800}}>{typeData.name}</div><div style={{fontSize:'10px',color:'#888'}}>점검 정보 입력</div></div>
+        </div>
+        {[{label:'📅 점검일',type:'date',val:auditDate,set:setAuditDate},
+          {label:'📍 점검 구역',type:'select',val:area,set:setArea,opts:areaList},
+          {label:'👤 점검자 (Auditor)',type:'text',val:auditor,set:setAuditor,ph:'이름 입력'},
+          {label:'👥 책임자 (Responsible)',type:'text',val:responsible,set:setResponsible,ph:'이름 입력'}
+        ].map((f,i)=>(
+          <div key={i} style={{background:'#fff',borderRadius:'12px',padding:'14px',border:'1px solid #e5e7eb'}}>
+            <label style={{fontSize:'11px',fontWeight:700,color:'#888',marginBottom:'6px',display:'block'}}>{f.label}</label>
+            {f.type==='select'?
+              <select value={f.val} onChange={e=>f.set(e.target.value)} style={{width:'100%',padding:'10px',background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:'8px',fontSize:'14px'}}>
+                <option value="">구역 선택</option>{f.opts.map(a=><option key={a} value={a}>{a}</option>)}
+              </select>
+            :<input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph||''} style={{width:'100%',padding:'10px',background:'#f9fafb',border:'1px solid #e5e7eb',borderRadius:'8px',fontSize:'14px'}}/>}
+          </div>
+        ))}
+        <button onClick={()=>{if(!area){alert('구역을 선택해주세요.');return;}if(!auditor.trim()){alert('점검자를 입력해주세요.');return;}setAuditStarted(true)}}
+          style={{width:'100%',padding:'14px',background:grd,color:'#fff',border:'none',borderRadius:'12px',fontSize:'15px',fontWeight:800,cursor:'pointer',boxShadow:'0 4px 16px rgba(245,158,11,.3)',marginTop:'4px'}}>
+          점검 시작 →
+        </button>
+      </div>);
+    }
+    // Step 3: 체크리스트
+    const typeData=FIVE_S_TYPES[auditType]; const lvl=getFiveSLevel(currentScore);
+    return(<div className="slide-up">
+      {/* Header info */}
+      <div style={{background:'#fff',borderRadius:'14px',padding:'14px',marginBottom:'10px',border:'1px solid #e5e7eb',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'10px'}}>
+          <button onClick={()=>{if(answeredCount>0&&!confirm('작성 중인 내용이 사라집니다. 돌아가시겠습니까?'))return;resetForm()}} style={{background:'#f1f5f9',border:'none',cursor:'pointer',borderRadius:'8px',width:'30px',height:'30px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={14}/></button>
+          <span style={{fontSize:'18px'}}>{typeData.icon}</span>
+          <div style={{flex:1}}><div style={{fontSize:'12px',fontWeight:800}}>{typeData.name}</div><div style={{fontSize:'10px',color:'#888'}}>{area} · {auditor} · {auditDate}</div></div>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+          <div style={{flex:1,background:'#f1f5f9',borderRadius:'8px',height:'10px',overflow:'hidden'}}>
+            <div style={{width:(currentScore/totalPossible*100)+'%',height:'100%',background:`linear-gradient(90deg,${lvl.color},${lvl.color}cc)`,borderRadius:'8px',transition:'width .4s ease'}}/>
+          </div>
+          <div style={{fontSize:'14px',fontWeight:900,color:lvl.color}}>{currentScore}<span style={{fontSize:'10px',color:'#999'}}>/{totalPossible}</span></div>
+          <span style={{fontSize:'10px',fontWeight:800,padding:'3px 8px',borderRadius:'6px',background:lvl.bg,color:lvl.color}}>{lvl.label}</span>
+        </div>
+        <div style={{display:'flex',justifyContent:'space-between',marginTop:'6px'}}>
+          <span style={{fontSize:'10px',color:'#999'}}>응답: {answeredCount}/{questions.length}</span>
+          <span style={{fontSize:'10px',color:lvl.color,fontWeight:700}}>{lvl.desc}</span>
+        </div>
+      </div>
+      {/* Categories */}
+      {FIVE_S_CATS.map(cat=>{
+        const catQs=questions.filter(q=>q.cat===cat.id); if(catQs.length===0)return null;
+        const catScore=catQs.reduce((s,q)=>s+(answers[q.no]?.result==='Y'?q.pts:0),0);
+        const catTotal=catQs.reduce((s,q)=>s+q.pts,0);
+        const catAnswered=catQs.filter(q=>answers[q.no]?.result).length;
+        const isExp=expandedCat===cat.id;
+        return(<div key={cat.id} style={{background:'#fff',borderRadius:'14px',marginBottom:'8px',border:'1px solid #e5e7eb',overflow:'hidden',boxShadow:'0 1px 3px rgba(0,0,0,.04)'}}>
+          <button onClick={()=>setExpandedCat(isExp?null:cat.id)} style={{width:'100%',padding:'12px 14px',display:'flex',alignItems:'center',gap:'10px',border:'none',background:isExp?cat.color+'08':'#fff',cursor:'pointer',textAlign:'left',transition:'background .2s'}}>
+            <div style={{width:'34px',height:'34px',borderRadius:'10px',background:cat.color+'15',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <span style={{fontSize:'16px'}}>{cat.icon}</span>
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:'12px',fontWeight:800,color:'#333'}}>{cat.id} {cat.name} <span style={{color:'#999',fontWeight:500,fontSize:'10px'}}>({cat.nameEn})</span></div>
+              <div style={{fontSize:'10px',color:'#999'}}>{cat.desc}</div>
+            </div>
+            <div style={{textAlign:'right',flexShrink:0}}>
+              <div style={{fontSize:'13px',fontWeight:800,color:cat.color}}>{catScore}<span style={{color:'#ccc'}}>/{catTotal}</span></div>
+              <div style={{fontSize:'9px',color:'#999'}}>{catAnswered}/{catQs.length}</div>
+            </div>
+            <Icon name={isExp?"ChevronUp":"ChevronDown"} size={16} style={{color:'#ccc'}}/>
+          </button>
+          {isExp&&(<div style={{padding:'0 10px 10px'}}>
+            {catQs.map(q=>{const a=answers[q.no]||{};
+              return(<div key={q.no} style={{padding:'10px',marginTop:'6px',borderRadius:'10px',border:`1px solid ${a.result==='Y'?'#bbf7d0':a.result==='N'?'#fecaca':'#f1f5f9'}`,
+                background:a.result==='Y'?'#f0fdf4':a.result==='N'?'#fef2f2':'#fafbfc',transition:'all .2s'}}>
+                <div style={{display:'flex',gap:'6px',marginBottom:'8px'}}>
+                  <span style={{fontSize:'10px',fontWeight:800,color:cat.color,background:cat.color+'15',padding:'2px 6px',borderRadius:'4px',flexShrink:0}}>Q{q.no}</span>
+                  <p style={{fontSize:'12px',color:'#444',lineHeight:1.5,flex:1,margin:0}}>{q.text}</p>
+                  <span style={{fontSize:'10px',color:'#999',flexShrink:0}}>{q.pts}pt</span>
+                </div>
+                <div style={{display:'flex',gap:'6px',marginBottom:a.result==='N'?'8px':'0'}}>
+                  <button onClick={()=>setAnswer(q.no,'result','Y')} style={{flex:1,padding:'8px',borderRadius:'8px',fontSize:'12px',fontWeight:700,cursor:'pointer',transition:'all .15s',
+                    border:a.result==='Y'?'2px solid #22c55e':'1px solid #e2e8f0',background:a.result==='Y'?'#dcfce7':'#fff',color:a.result==='Y'?'#166534':'#888'}}>
+                    ✅ YES ({q.pts}pt)
+                  </button>
+                  <button onClick={()=>setAnswer(q.no,'result','N')} style={{flex:1,padding:'8px',borderRadius:'8px',fontSize:'12px',fontWeight:700,cursor:'pointer',transition:'all .15s',
+                    border:a.result==='N'?'2px solid #ef4444':'1px solid #e2e8f0',background:a.result==='N'?'#fee2e2':'#fff',color:a.result==='N'?'#991b1b':'#888'}}>
+                    ❌ NO (0pt)
+                  </button>
+                </div>
+                {a.result==='N'&&(<div className="fade-in" style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+                  <input value={a.comment||''} onChange={e=>setAnswer(q.no,'comment',e.target.value)} placeholder="💬 Comment" style={{padding:'8px 10px',border:'1px solid #fecaca',borderRadius:'6px',fontSize:'11px',background:'#fff'}}/>
+                  <div style={{display:'flex',gap:'6px'}}>
+                    <input value={a.who||''} onChange={e=>setAnswer(q.no,'who',e.target.value)} placeholder="👤 WHO" style={{flex:1,padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:'6px',fontSize:'11px'}}/>
+                    <input type="date" value={a.when||''} onChange={e=>setAnswer(q.no,'when',e.target.value)} style={{flex:1,padding:'8px 10px',border:'1px solid #e2e8f0',borderRadius:'6px',fontSize:'11px'}}/>
+                  </div>
+                </div>)}
+              </div>);
+            })}
+          </div>)}
+        </div>);
+      })}
+      <button onClick={submitAudit} style={{width:'100%',marginTop:'8px',marginBottom:'20px',padding:'14px',background:grd,color:'#fff',border:'none',borderRadius:'14px',fontSize:'15px',fontWeight:800,cursor:'pointer',boxShadow:'0 4px 16px rgba(245,158,11,.3)',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px'}}>
+        <Icon name="CheckCircle" size={18} style={{color:'#fff'}}/> 점검 제출 ({currentScore}/{totalPossible}점)
+      </button>
+    </div>);
+  };
+
+  // === History Tab ===
+  const HistoryTab=()=>{
+    const[expandId,setExpandId]=useState(null);
+    return(<div className="slide-up">
+      <p style={{fontSize:'13px',color:'#888',marginBottom:'10px'}}>총 <span style={{fontWeight:800,color:acc}}>{audits.length}</span>건</p>
+      {audits.length===0?(<div style={{textAlign:'center',padding:'40px',color:'#999'}}><div style={{fontSize:'36px',marginBottom:'8px'}}>📋</div><p style={{fontSize:'13px',fontWeight:600}}>점검 이력이 없습니다</p></div>
+      ):(<div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+        {audits.map(a=>{const lvl=getFiveSLevel(a.score);const typeData=FIVE_S_TYPES[a.type]||{icon:'⭐',name:a.type};const expanded=expandId===a.id;
+          return(<div key={a.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
+            <div onClick={()=>setExpandId(expanded?null:a.id)} style={{padding:'12px',cursor:'pointer',display:'flex',alignItems:'center',gap:'10px'}}>
+              <span style={{fontSize:'20px'}}>{typeData.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{display:'flex',alignItems:'center',gap:'6px'}}><span style={{fontSize:'12px',fontWeight:800,color:'#333'}}>{a.area}</span><span style={{fontSize:'10px',color:'#999'}}>{a.date}</span></div>
+                <div style={{fontSize:'10px',color:'#888'}}>점검자: {a.auditor}</div>
+              </div>
+              <div style={{textAlign:'right',flexShrink:0}}>
+                <div style={{fontSize:'14px',fontWeight:900,color:lvl.color}}>{a.score}<span style={{color:'#ccc',fontSize:'10px'}}>/{a.total}</span></div>
+                <span style={{fontSize:'9px',fontWeight:800,padding:'2px 6px',borderRadius:'4px',background:lvl.bg,color:lvl.color}}>{lvl.label}</span>
+              </div>
+              <Icon name={expanded?"ChevronUp":"ChevronDown"} size={16} style={{color:'#ccc'}}/>
+            </div>
+            {expanded&&(<div style={{padding:'0 12px 12px',borderTop:'1px solid #f1f5f9'}} className="fade-in">
+              {a.responsible&&<div style={{fontSize:'10px',color:'#888',marginBottom:'6px'}}>책임자: {a.responsible}</div>}
+              {FIVE_S_CATS.map(cat=>{
+                const catQs=(FIVE_S_TYPES[a.type]?.questions||[]).filter(q=>q.cat===cat.id);if(catQs.length===0)return null;
+                return(<div key={cat.id} style={{marginBottom:'8px'}}>
+                  <div style={{fontSize:'10px',fontWeight:800,color:cat.color,marginBottom:'4px'}}>{cat.icon} {cat.id} {cat.name}</div>
+                  {catQs.map(q=>{const ans=a.answers[q.no]||{};if(!ans.result)return null;
+                    return(<div key={q.no} style={{padding:'6px 8px',marginBottom:'2px',borderRadius:'6px',fontSize:'11px',
+                      background:ans.result==='Y'?'#f0fdf4':'#fef2f2',borderLeft:`3px solid ${ans.result==='Y'?'#22c55e':'#ef4444'}`}}>
+                      <div style={{display:'flex',gap:'4px',alignItems:'flex-start'}}>
+                        <span style={{fontWeight:700,color:ans.result==='Y'?'#166534':'#991b1b'}}>{ans.result==='Y'?'✅':'❌'}</span>
+                        <span style={{color:'#555',flex:1}}>{q.text}</span>
+                        <span style={{color:'#999',flexShrink:0,fontSize:'10px'}}>{ans.result==='Y'?q.pts:0}pt</span>
+                      </div>
+                      {ans.comment&&<div style={{marginTop:'2px',color:'#78350f',fontSize:'10px'}}>💬 {ans.comment}</div>}
+                      {(ans.who||ans.when)&&<div style={{marginTop:'2px',color:'#888',fontSize:'10px'}}>👤 {ans.who||'-'} · 📅 {ans.when||'-'}</div>}
+                    </div>);
+                  })}
+                </div>);
+              })}
+              <button onClick={()=>{if(confirm('삭제하시겠습니까?'))setAudits(prev=>prev.filter(x=>x.id!==a.id))}} style={{marginTop:'4px',padding:'6px 12px',background:'#fee2e2',color:'#991b1b',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:600,cursor:'pointer'}}>삭제</button>
+            </div>)}
+          </div>);
+        })}
+      </div>)}
+    </div>);
+  };
+
+  // === Settings Tab ===
+  const SettingsTab5S=()=>{
+    const[editType,setEditType]=useState(null);const[ni,setNi]=useState('');
+    return(<div className="slide-up" style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+      {Object.entries(FIVE_S_TYPES).map(([key,t])=>{
+        const list=areas[key]||[];const isOpen=editType===key;
+        return(<div key={key} style={{background:'#fff',borderRadius:'14px',border:'1px solid #e5e7eb',overflow:'hidden'}}>
+          <button onClick={()=>{setEditType(isOpen?null:key);setNi('')}} style={{width:'100%',padding:'14px',display:'flex',alignItems:'center',gap:'10px',border:'none',background:'#fff',cursor:'pointer',textAlign:'left'}}>
+            <span style={{fontSize:'24px'}}>{t.icon}</span>
+            <div style={{flex:1}}><div style={{fontSize:'13px',fontWeight:800}}>{t.name}</div><div style={{fontSize:'10px',color:'#999'}}>{list.length}개 구역</div></div>
+            <Icon name={isOpen?"ChevronUp":"ChevronDown"} size={16} style={{color:'#ccc'}}/>
+          </button>
+          {isOpen&&(<div style={{borderTop:'1px solid #f1f5f9',padding:'12px'}} className="fade-in">
+            <div style={{display:'flex',gap:'6px',marginBottom:'10px'}}>
+              <input value={ni} onChange={e=>setNi(e.target.value)} onKeyDown={e=>e.key==='Enter'&&ni.trim()&&(()=>{
+                if(list.includes(ni.trim())){alert('이미 존재합니다.');return;}setAreas(prev=>({...prev,[key]:[...list,ni.trim()]}));setNi('');
+              })()} placeholder="새 구역 입력" style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:'8px',fontSize:'12px'}}/>
+              <button onClick={()=>{if(!ni.trim())return;if(list.includes(ni.trim())){alert('이미 존재합니다.');return;}setAreas(prev=>({...prev,[key]:[...list,ni.trim()]}));setNi('')}}
+                style={{padding:'8px 14px',background:grd,color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:700,cursor:'pointer'}}>추가</button>
+            </div>
+            <div style={{display:'flex',flexDirection:'column',gap:'4px'}}>
+              {list.map((item,i)=>(<div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 10px',background:'#f9fafb',borderRadius:'8px'}}>
+                <span style={{fontSize:'12px',color:'#555'}}>{item}</span>
+                <button onClick={()=>setAreas(prev=>({...prev,[key]:list.filter((_,idx)=>idx!==i)}))} style={{background:'none',border:'none',cursor:'pointer',color:'#ccc',padding:'2px'}}><Icon name="X" size={14}/></button>
+              </div>))}
+            </div>
+          </div>)}
+        </div>);
+      })}
+    </div>);
+  };
+
+  const tabs5S=[{id:'audit',icon:'ClipboardCheck',label:'점검'},{id:'history',icon:'ClipboardList',label:'이력'},{id:'settings',icon:'Settings',label:'설정'}];
+
+  return(<SubAppShell title="5S+ Audit" emoji="✨" gradient={grd} accentColor={acc} onBack={onBack} tabs={tabs5S} activeTab={tab} setActiveTab={t=>{
+    if(t==='settings'&&!checkAdmin())return;setTab(t);
+  }}>
+    {tab==='audit'&&<AuditTab/>}
+    {tab==='history'&&<HistoryTab/>}
+    {tab==='settings'&&<SettingsTab5S/>}
+  </SubAppShell>);
+}
 
 function SafetyPatrolApp({onBack}){
   const[tab,setTab]=useState('schedule');
