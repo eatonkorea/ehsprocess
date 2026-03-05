@@ -211,21 +211,67 @@ function HomeScreen({onSelect}){
   </div>)}
 
 // ===== PI App =====
+const PI_GAS_URL = 'https://script.google.com/macros/s/AKfycbwA6ctHknOpkmpNYkY2iGRwbYtA2WZ9DBIoHVgaqE4dTP4hI1MrKnyM0-vZHFKAPJmI/exec';
+
+const piApi={
+  async get(type='all'){
+    if(!PI_GAS_URL)return null;
+    try{const r=await fetch(PI_GAS_URL+'?type='+type);return await r.json();}catch(e){console.error('PI API get:',e);return null;}
+  },
+  async post(body){
+    if(!PI_GAS_URL)return null;
+    try{const r=await fetch(PI_GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}catch(e){console.error('PI API post:',e);return null;}
+  }
+};
+
 function PIApp({onBack}){
   const[tab,setTab]=useState('submit');const[items,setItems]=useState(()=>S.get('pi_items',[]));
   const[settings,setSettings]=useState(()=>S.get('pi_settings',{departments:['생산팀','품질팀','안전팀','관리팀','시설팀']}));
   const[showSuccess,setShowSuccess]=useState(false);
+  const[synced,setSynced]=useState(!PI_GAS_URL);const[syncing,setSyncing]=useState(false);const[loading,setLoading]=useState(!!PI_GAS_URL);
   useEffect(()=>{S.set('pi_items',items)},[items]);useEffect(()=>{S.set('pi_settings',settings)},[settings]);
-  const addItem=(data)=>{const d=data.piDate||toLocalDate(new Date());setItems([{id:Date.now(),date:d,...data},...items]);setShowSuccess(true)};
+
+  // GAS에서 데이터 로딩
+  useEffect(()=>{
+    if(!PI_GAS_URL)return;
+    setLoading(true);
+    piApi.get('all').then(res=>{
+      if(res&&res.success){
+        if(res.items&&res.items.length>0){setItems(res.items);S.set('pi_items',res.items);}
+        if(res.settings&&Object.keys(res.settings).length>0){setSettings(res.settings);S.set('pi_settings',res.settings);}
+        setSynced(true);
+      }
+      setLoading(false);
+    });
+  },[]);
+
+  // 설정 변경 시 GAS 저장 (디바운스)
+  const settingsTimer=useRef(null);const isFirstSettings=useRef(true);
+  useEffect(()=>{
+    if(isFirstSettings.current){isFirstSettings.current=false;return;}
+    if(!PI_GAS_URL)return;
+    if(settingsTimer.current)clearTimeout(settingsTimer.current);
+    settingsTimer.current=setTimeout(()=>{
+      piApi.post({action:'saveSettings',settings});
+    },2000);
+    return()=>{if(settingsTimer.current)clearTimeout(settingsTimer.current)};
+  },[settings]);
+
+  const addItem=(data)=>{const d=data.piDate||toLocalDate(new Date());const newItem={id:Date.now(),date:d,...data};setItems([newItem,...items]);setShowSuccess(true);
+    if(PI_GAS_URL){setSynced(false);piApi.post({action:'addItem',...newItem}).then(r=>{if(r&&r.success)setSynced(true)});}
+  };
+  const deleteItem=(id)=>{setItems(prev=>prev.filter(it=>it.id!==id&&String(it.id)!==String(id)));
+    if(PI_GAS_URL){piApi.post({action:'deleteItem',id:String(id)});}
+  };
   const tabs=[{id:'submit',icon:'ClipboardList',label:'접수'},{id:'list',icon:'List',label:'목록'},{id:'settings',icon:'Settings',label:'설정'}];
   const sf=[{key:'departments',label:'부서 목록',icon:'Building2',color:'blue'}];
-  return(<SubAppShell title="PI (Positive Interruption)" emoji="👆" gradient="linear-gradient(135deg,#4facfe,#00f2fe)" accentColor="#0ea5e9" onBack={onBack} tabs={tabs} activeTab={tab} setActiveTab={t=>{if(t==='settings'){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==SETTINGS_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}}setTab(t)}}>{showSuccess&&<SuccessModal message="PI 접수 완료!" onClose={()=>setShowSuccess(false)}/>}{tab==='submit'&&<PISubmitForm settings={settings} onSubmit={addItem}/>}{tab==='list'&&<PIList items={items} setItems={setItems}/>}{tab==='settings'&&<SettingsPanel settings={settings} setSettings={setSettings} fields={sf}/>}</SubAppShell>)}
+  return(<SubAppShell title="PI (Positive Interruption)" emoji="👆" gradient="linear-gradient(135deg,#4facfe,#00f2fe)" accentColor="#0ea5e9" onBack={onBack} tabs={tabs} activeTab={tab} setActiveTab={t=>{if(t==='settings'){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==SETTINGS_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}}setTab(t)}}>{showSuccess&&<SuccessModal message="PI 접수 완료!" onClose={()=>setShowSuccess(false)}/>}{PI_GAS_URL&&<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',padding:'4px 0',fontSize:'11px'}}><div style={{width:'7px',height:'7px',borderRadius:'50%',background:loading?'#f59e0b':synced?'#22c55e':'#f59e0b'}}/><span style={{color:'#999'}}>{loading?'로딩 중...':synced?'Google 연결됨':'동기화 중...'}</span></div>}{tab==='submit'&&<PISubmitForm settings={settings} onSubmit={addItem}/>}{tab==='list'&&<PIList items={items} setItems={setItems} onDelete={deleteItem}/>}{tab==='settings'&&<SettingsPanel settings={settings} setSettings={setSettings} fields={sf}/>}</SubAppShell>)}
 
-function PIList({items,setItems}){
+function PIList({items,setItems,onDelete}){
   const[selDept,setSelDept]=useState(null);const[selYear,setSelYear]=useState(null);const[editId,setEditId]=useState(null);
   const depts=useMemo(()=>{const d={};items.forEach(it=>{const dept=it.department||'미지정';if(!d[dept])d[dept]=[];d[dept].push(it)});return d},[items]);
   const getYear=(item)=>{if(!item.date)return'미지정';const m=item.date.match(/(\d{4})/);return m?m[1]:'미지정'};
-  const delItem=(id)=>{if(confirm('삭제하시겠습니까?'))setItems(items.filter(it=>it.id!==id))};
+  const delItem=(id)=>{if(confirm('삭제하시겠습니까?')){if(onDelete)onDelete(id);else setItems(items.filter(it=>it.id!==id))}};
 
   // 1) Department list
   if(!selDept)return(<div className="slide-up"><p className="text-sm text-gray-500 mb-3">총 <span className="font-bold text-blue-600">{items.length}</span>건 · <span className="font-bold">{Object.keys(depts).length}</span>개 부서</p>
@@ -304,15 +350,64 @@ function PISubmitForm({settings,onSubmit}){
 }
 
 // ===== Gemba Walk =====
+const GEMBA_GAS_URL = 'https://script.google.com/macros/s/AKfycbwYaGXkTKnJ5NwuzefiiT1PDn5kZy7eoL69li57V0zOzrw5YnkOYnaTCiWtLOjEGhYMMQ/exec';
+
+const gembaApi={
+  async get(type='all'){
+    if(!GEMBA_GAS_URL)return null;
+    try{const r=await fetch(GEMBA_GAS_URL+'?type='+type);return await r.json();}catch(e){console.error('Gemba API get:',e);return null;}
+  },
+  async post(body){
+    if(!GEMBA_GAS_URL)return null;
+    try{const r=await fetch(GEMBA_GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}catch(e){console.error('Gemba API post:',e);return null;}
+  }
+};
+
 function GembaApp({onBack}){
   const[tab,setTab]=useState('submit');const[items,setItems]=useState(()=>S.get('gemba_items',[]));
   const[settings,setSettings]=useState(()=>S.get('gemba_settings',{modules:['Module A','Module B','Module C'],departments:['생산팀','품질팀','안전팀','관리팀','시설팀'],statuses:['Open','In Progress','Closed','Overdue']}));
   const[showSuccess,setShowSuccess]=useState(false);
+  const[synced,setSynced]=useState(!GEMBA_GAS_URL);const[syncing,setSyncing]=useState(false);const[loading,setLoading]=useState(!!GEMBA_GAS_URL);
   useEffect(()=>{S.set('gemba_items',items)},[items]);useEffect(()=>{S.set('gemba_settings',settings)},[settings]);
-  const addItem=(data)=>{const d=data.gDate||toLocalDate(new Date());setItems([{id:Date.now(),date:d,...data},...items]);setShowSuccess(true)};
+
+  // GAS에서 데이터 로딩
+  useEffect(()=>{
+    if(!GEMBA_GAS_URL)return;
+    setLoading(true);
+    gembaApi.get('all').then(res=>{
+      if(res&&res.success){
+        if(res.items&&res.items.length>0){setItems(res.items);S.set('gemba_items',res.items);}
+        if(res.settings&&Object.keys(res.settings).length>0){setSettings(res.settings);S.set('gemba_settings',res.settings);}
+        setSynced(true);
+      }
+      setLoading(false);
+    });
+  },[]);
+
+  // 설정 변경 시 GAS 저장 (디바운스)
+  const settingsTimer=useRef(null);const isFirstSettings=useRef(true);
+  useEffect(()=>{
+    if(isFirstSettings.current){isFirstSettings.current=false;return;}
+    if(!GEMBA_GAS_URL)return;
+    if(settingsTimer.current)clearTimeout(settingsTimer.current);
+    settingsTimer.current=setTimeout(()=>{
+      gembaApi.post({action:'saveSettings',settings});
+    },2000);
+    return()=>{if(settingsTimer.current)clearTimeout(settingsTimer.current)};
+  },[settings]);
+
+  const addItem=(data)=>{const d=data.gDate||toLocalDate(new Date());const newItem={id:Date.now(),date:d,...data,dueDate:(()=>{const dd=new Date();dd.setDate(dd.getDate()+30);return dd.toISOString().split('T')[0]})(),status:data.closeDate?'Closed':'Open'};setItems([newItem,...items]);setShowSuccess(true);
+    if(GEMBA_GAS_URL){setSynced(false);gembaApi.post({action:'addItem',...newItem}).then(r=>{if(r&&r.success)setSynced(true)});}
+  };
+  const updateItem=(id,changes)=>{setItems(prev=>prev.map(it=>{if(it.id!==id&&String(it.id)!==String(id))return it;const updated={...it,...changes};if(changes.closeDate!==undefined){updated.status=changes.closeDate&&changes.closeDate.trim()?'Closed':'Open';}return updated}));
+    if(GEMBA_GAS_URL){gembaApi.post({action:'updateItem',id:String(id),changes});}
+  };
+  const deleteItem=(id)=>{setItems(prev=>prev.filter(it=>it.id!==id&&String(it.id)!==String(id)));
+    if(GEMBA_GAS_URL){gembaApi.post({action:'deleteItem',id:String(id)});}
+  };
   const tabs=[{id:'submit',icon:'ClipboardList',label:'접수'},{id:'list',icon:'List',label:'목록'},{id:'settings',icon:'Settings',label:'설정'}];
   const sf=[{key:'modules',label:'Module 목록',icon:'Box',color:'emerald'},{key:'departments',label:'Dept 목록',icon:'Building2',color:'blue'},{key:'statuses',label:'Status 목록',icon:'CircleDot',color:'amber'}];
-  return(<SubAppShell title="부서별 Gemba Walk" emoji="📋" gradient="linear-gradient(135deg,#11998e,#38ef7d)" accentColor="#10b981" onBack={onBack} tabs={tabs} activeTab={tab} setActiveTab={t=>{if(t==='settings'){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==SETTINGS_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}}setTab(t)}}>{showSuccess&&<SuccessModal message="Gemba Walk 접수 완료!" onClose={()=>setShowSuccess(false)}/>}{tab==='submit'&&<GembaForm settings={settings} onSubmit={addItem}/>}{tab==='list'&&<GembaList items={items} setItems={setItems} settings={settings}/>}{tab==='settings'&&<SettingsPanel settings={settings} setSettings={setSettings} fields={sf}/>}</SubAppShell>)}
+  return(<SubAppShell title="부서별 Gemba Walk" emoji="📋" gradient="linear-gradient(135deg,#11998e,#38ef7d)" accentColor="#10b981" onBack={onBack} tabs={tabs} activeTab={tab} setActiveTab={t=>{if(t==='settings'){const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw!==SETTINGS_PW){if(pw!==null)alert('비밀번호가 틀립니다.');return;}}setTab(t)}}>{showSuccess&&<SuccessModal message="Gemba Walk 접수 완료!" onClose={()=>setShowSuccess(false)}/>}{GEMBA_GAS_URL&&<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',padding:'4px 0',fontSize:'11px'}}><div style={{width:'7px',height:'7px',borderRadius:'50%',background:loading?'#f59e0b':synced?'#22c55e':'#f59e0b'}}/><span style={{color:'#999'}}>{loading?'로딩 중...':synced?'Google 연결됨':'동기화 중...'}</span></div>}{tab==='submit'&&<GembaForm settings={settings} onSubmit={addItem}/>}{tab==='list'&&<GembaList items={items} setItems={setItems} settings={settings} onUpdate={updateItem} onDelete={deleteItem}/>}{tab==='settings'&&<SettingsPanel settings={settings} setSettings={setSettings} fields={sf}/>}</SubAppShell>)}
 function GembaForm({settings,onSubmit}){
   const dueDefault=()=>{const d=new Date();d.setDate(d.getDate()+30);return d.toISOString().split('T')[0]};
   const today=new Date();const todayStr=toLocalDate(today);
@@ -322,14 +417,14 @@ function GembaForm({settings,onSubmit}){
   return(<div className="space-y-4 slide-up"><div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100"><div className="flex items-center gap-2 mb-5"><div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center"><Icon name="FileEdit" size={18} className="text-emerald-600"/></div><h2 className="text-base font-bold text-gray-800">Gemba Walk 접수</h2></div><div className="space-y-4"><KoreanNameField label="이름 *" value={f.name} onChange={v=>u('name',v)} placeholder="한글 이름 (2~4글자)" icon="User"/><div><label className="block text-sm font-medium text-gray-600 mb-1.5">날짜 * <span className="text-xs text-gray-400 font-normal">(매월 7일까지 전월 입력 가능)</span></label><div className="relative"><div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Icon name="Calendar" size={18}/></div><input type="date" value={f.gDate} onChange={e=>{const v=e.target.value;if(v<gDateRange.min||v>gDateRange.max){alert(`${gDateRange.min} ~ ${gDateRange.max} 범위만 입력 가능합니다.`);return;}u('gDate',v)}} min={gDateRange.min} max={gDateRange.max} className="w-full p-3 pl-10 bg-white border border-gray-200 rounded-xl text-gray-800"/></div></div><SelectField label="Module *" value={f.module} onChange={v=>u('module',v)} options={settings.modules} icon="Box"/><SelectField label="Dept *" value={f.dept} onChange={v=>u('dept',v)} options={settings.departments} icon="Building2"/><InputField label="Finding Description / Comments *" value={f.finding} onChange={v=>u('finding',v)} placeholder="발견 사항을 상세히 기재하세요" icon="FileText" multiline/><InputField label="Action Item" value={f.actionItem} onChange={v=>u('actionItem',v)} placeholder="조치 항목" icon="Wrench"/><div><label className="block text-sm font-medium text-gray-600 mb-1.5">Close Date <span className="text-xs text-emerald-600">(입력 시 Closed 처리)</span></label><div className="relative"><div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Icon name="CalendarCheck" size={18}/></div><input type="date" value={f.closeDate} onChange={e=>u('closeDate',e.target.value)} className="w-full p-3 pl-10 bg-white border border-gray-200 rounded-xl text-gray-800"/></div></div><InputField label="Remark" value={f.remark} onChange={v=>u('remark',v)} placeholder="비고" icon="MessageSquare" multiline/>
   <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-100"><div className="flex items-center gap-2 text-sm text-emerald-700"><Icon name="Info" size={14} className="text-emerald-600"/><span>Due Date는 접수일+30일 자동 설정 / Status는 Open으로 시작</span></div></div>
   </div></div><button onClick={submit} className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold shadow-md shadow-emerald-200 transition-all active:scale-[0.98]">접수하기</button></div>)}
-function GembaList({items,setItems,settings}){
+function GembaList({items,setItems,settings,onUpdate,onDelete}){
   const[selDept,setSelDept]=useState(null);const[selYear,setSelYear]=useState(null);const[selStatus,setSelStatus]=useState(null);const[editId,setEditId]=useState(null);
   const depts=useMemo(()=>{const d={};items.forEach(it=>{const dept=it.dept||'미지정';if(!d[dept])d[dept]=[];d[dept].push(it)});return d},[items]);
   const getYear=(item)=>{if(!item.date)return'미지정';const m=item.date.match(/(\d{4})/);return m?m[1]:'미지정'};
   const statusOrder=['Open','In Progress','Overdue','Closed'];
   const sc=(s)=>{if(s==='Closed')return{bg:'bg-green-100',text:'text-green-700',icon:'CheckCircle2',color:'text-green-600'};if(s==='In Progress')return{bg:'bg-yellow-100',text:'text-yellow-700',icon:'Clock',color:'text-yellow-600'};if(s==='Overdue')return{bg:'bg-red-100',text:'text-red-700',icon:'AlertCircle',color:'text-red-600'};return{bg:'bg-blue-100',text:'text-blue-700',icon:'Circle',color:'text-blue-600'}};
-  const updateItem=(id,changes)=>{setItems(items.map(it=>{if(it.id!==id)return it;const updated={...it,...changes};if(changes.closeDate!==undefined){if(changes.closeDate&&changes.closeDate.trim())updated.status='Closed';else updated.status='Open';}return updated}))};
-  const delItem=(id)=>{if(confirm('삭제하시겠습니까?'))setItems(items.filter(it=>it.id!==id))};
+  const updateItem=(id,changes)=>{if(onUpdate)onUpdate(id,changes);else setItems(items.map(it=>{if(it.id!==id)return it;const updated={...it,...changes};if(changes.closeDate!==undefined){if(changes.closeDate&&changes.closeDate.trim())updated.status='Closed';else updated.status='Open';}return updated}))};
+  const delItem=(id)=>{if(confirm('삭제하시겠습니까?')){if(onDelete)onDelete(id);else setItems(items.filter(it=>it.id!==id))}};
 
   // 1) Department list
   if(!selDept)return(<div className="slide-up"><p className="text-sm text-gray-500 mb-3">총 <span className="font-bold text-emerald-600">{items.length}</span>건 · <span className="font-bold">{Object.keys(depts).length}</span>개 부서</p>
@@ -3347,6 +3442,19 @@ function SafetyPatrolApp({onBack}){
   </div>);
 }
 // ===== Safety Tracker =====
+const SAFETY_GAS_URL = 'https://script.google.com/macros/s/AKfycbxFV__lWBzAHQ8nfU5DcuWyntxrjgMk8WY3EvpuTeLGi5EFs2wCzMrsRWXwQJW1rKpSyw/exec';
+
+const safetyApi={
+  async get(){
+    if(!SAFETY_GAS_URL)return null;
+    try{const r=await fetch(SAFETY_GAS_URL);return await r.json();}catch(e){console.error('Safety API get:',e);return null;}
+  },
+  async post(body){
+    if(!SAFETY_GAS_URL)return null;
+    try{const r=await fetch(SAFETY_GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}catch(e){console.error('Safety API post:',e);return null;}
+  }
+};
+
 function SafetyApp({onBack}){
   const curY=new Date().getFullYear();const curM=new Date().getMonth()+1;
   const[year,setYear]=useState(()=>S.get('safety_year',curY));
@@ -3355,11 +3463,46 @@ function SafetyApp({onBack}){
   const[headcount,setHeadcount]=useState(()=>S.get('safety_headcount',{}));
   const[isAdmin,setIsAdmin]=useState(false);
   const[showTrackerSettings,setShowTrackerSettings]=useState(false);
+  const[synced,setSynced]=useState(!SAFETY_GAS_URL);
+  const[syncing,setSyncing]=useState(false);
+  const[loading,setLoading]=useState(!!SAFETY_GAS_URL);
+  const saveTimer=useRef(null);
   const ADMIN_PW='eaton12!@';
   useEffect(()=>{S.set('safety_year',year)},[year]);
   useEffect(()=>{S.set('safety_month',month)},[month]);
   useEffect(()=>{S.set('safety_fygoals',fyGoals)},[fyGoals]);
   useEffect(()=>{S.set('safety_headcount',headcount)},[headcount]);
+
+  // GAS에서 데이터 로딩
+  useEffect(()=>{
+    if(!SAFETY_GAS_URL)return;
+    setLoading(true);
+    safetyApi.get().then(res=>{
+      if(res&&res.success){
+        if(res.headcount&&Object.keys(res.headcount).length>0){setHeadcount(res.headcount);S.set('safety_headcount',res.headcount);}
+        if(res.fyGoals&&Object.keys(res.fyGoals).length>0){setFyGoals(res.fyGoals);S.set('safety_fygoals',res.fyGoals);}
+        setSynced(true);
+      }
+      setLoading(false);
+    });
+  },[]);
+
+  // GAS로 자동 저장 (디바운스 2초)
+  const isFirstRender=useRef(true);
+  useEffect(()=>{
+    if(isFirstRender.current){isFirstRender.current=false;return;}
+    if(!SAFETY_GAS_URL)return;
+    setSynced(false);
+    if(saveTimer.current)clearTimeout(saveTimer.current);
+    saveTimer.current=setTimeout(()=>{
+      setSyncing(true);
+      safetyApi.post({action:'saveAll',headcount,fyGoals}).then(res=>{
+        if(res&&res.success)setSynced(true);
+        setSyncing(false);
+      });
+    },2000);
+    return()=>{if(saveTimer.current)clearTimeout(saveTimer.current)};
+  },[headcount,fyGoals]);
 
   // Headcount helpers
   const getHC=(dept,m)=>headcount[`${year}_${dept}_${m}`]||0;
@@ -3576,7 +3719,7 @@ function SafetyApp({onBack}){
 
   return(<div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f0f4ff'}}>
     {/* Header */}
-    <div style={{flexShrink:0,background:'linear-gradient(135deg,#667eea,#764ba2)',padding:'8px 16px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+    <div style={{flexShrink:0,background:'linear-gradient(135deg,#667eea,#764ba2)',padding:'8px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'relative'}}>
       <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
         <button onClick={onBack} style={{background:'rgba(255,255,255,.15)',border:'none',cursor:'pointer',color:'#fff',borderRadius:'10px',width:'34px',height:'34px',display:'flex',alignItems:'center',justifyContent:'center'}}><Icon name="ArrowLeft" size={20}/></button>
         <span style={{fontSize:'22px'}}>🛡️</span>
@@ -3587,6 +3730,11 @@ function SafetyApp({onBack}){
         <select value={year} onChange={e=>setYear(Number(e.target.value))} style={{...ss,background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.3)',color:'#fff'}}>{[curY-2,curY-1,curY,curY+1].map(y=>(<option key={y} value={y} style={{color:'#333',background:'#fff'}}>{y}</option>))}</select>
         <select value={month} onChange={e=>setMonth(Number(e.target.value))} style={{...ss,background:'rgba(0,0,0,.25)',border:'1px solid rgba(255,255,255,.3)',color:'#fff'}}>{[...Array(12)].map((_,i)=>(<option key={i+1} value={i+1} style={{color:'#333',background:'#fff'}}>{i+1}월</option>))}</select>
         <button onClick={()=>{const pw=prompt('관리자 비밀번호를 입력하세요:');if(pw===ADMIN_PW)setShowTrackerSettings(true);else if(pw!==null)alert('비밀번호가 틀립니다.')}} style={{background:'rgba(255,255,255,.2)',borderRadius:'10px',border:'none',cursor:'pointer',width:'34px',height:'34px',display:'flex',alignItems:'center',justifyContent:'center'}} title="설정"><Icon name="Settings" size={16} style={{color:'#fff'}}/></button>
+      </div>
+      {/* Sync Status Bar */}
+      <div style={{position:'absolute',bottom:'-18px',right:'16px',display:'flex',alignItems:'center',gap:'4px',fontSize:'10px',zIndex:5}}>
+        <div style={{width:'6px',height:'6px',borderRadius:'50%',background:SAFETY_GAS_URL?(synced?'#22c55e':syncing?'#f59e0b':'#f59e0b'):'#ef4444'}}/>
+        <span style={{color:'rgba(255,255,255,.7)'}}>{SAFETY_GAS_URL?(loading?'로딩 중...':syncing?'저장 중...':synced?'Google 연결됨':'대기'):'로컬 저장'}</span>
       </div>
     </div>
 
