@@ -923,6 +923,7 @@ function TableScaler({children}){
 function ProductManager({products,setProducts}){
   const[name,setName]=useState('');
   const[points,setPoints]=useState('');
+  const[stock,setStock]=useState('');
   const[photo,setPhoto]=useState('');
   const[editId,setEditId]=useState(null);
 
@@ -935,35 +936,37 @@ function ProductManager({products,setProducts}){
 
   const save=()=>{
     if(!name.trim()||!points){alert('상품명과 포인트를 입력해주세요.');return;}
+    const stockNum=stock===''?-1:Number(stock);
     if(editId){
-      setProducts(products.map(p=>p.id===editId?{...p,name:name.trim(),points:Number(points),photo}:p));
-      ciApi.post({action:'updateProduct',id:editId,name:name.trim(),points:Number(points),photo}).then(res=>{
+      setProducts(products.map(p=>p.id===editId?{...p,name:name.trim(),points:Number(points),stock:stockNum,photo}:p));
+      ciApi.post({action:'updateProduct',id:editId,name:name.trim(),points:Number(points),stock:stockNum,photo}).then(res=>{
         if(res&&res.photo!==undefined)setProducts(prev=>prev.map(p=>p.id===editId?{...p,photo:res.photo}:p));
       });
       setEditId(null);
     }else{
       const newId=Date.now().toString();
-      setProducts([...products,{id:newId,name:name.trim(),points:Number(points),photo}]);
-      ciApi.post({action:'addProduct',name:name.trim(),points:Number(points),photo}).then(res=>{
+      setProducts([...products,{id:newId,name:name.trim(),points:Number(points),stock:stockNum,photo}]);
+      ciApi.post({action:'addProduct',name:name.trim(),points:Number(points),stock:stockNum,photo}).then(res=>{
         if(res&&res.id)setProducts(prev=>prev.map(p=>p.id===newId?{...p,id:res.id,photo:res.photo||p.photo}:p));
       });
     }
-    setName('');setPoints('');setPhoto('');
+    setName('');setPoints('');setStock('');setPhoto('');
   };
 
-  const edit=(p)=>{setEditId(p.id);setName(p.name);setPoints(String(p.points));setPhoto(p.photo||'');};
+  const edit=(p)=>{setEditId(p.id);setName(p.name);setPoints(String(p.points));setStock(p.stock===-1||p.stock===undefined?'':String(p.stock));setPhoto(p.photo||'');};
   const del=(id)=>{if(confirm('삭제?')){setProducts(products.filter(p=>p.id!==id));ciApi.post({action:'deleteProduct',id})}};
 
   return(<div>
     <div style={{display:'flex',gap:'8px',marginBottom:'10px',flexWrap:'wrap'}}>
       <input value={name} onChange={e=>setName(e.target.value)} placeholder="상품명 *" style={{flex:'1 1 120px',padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
       <input type="number" value={points} onChange={e=>setPoints(e.target.value)} placeholder="포인트 *" style={{width:'80px',padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
+      <input type="number" value={stock} onChange={e=>setStock(e.target.value)} placeholder="재고" title="비워두면 무제한" style={{width:'60px',padding:'8px 12px',border:'1px solid #ddd',borderRadius:'8px',fontSize:'13px'}}/>
       <label style={{padding:'8px 12px',border:'1px dashed #ddd',borderRadius:'8px',fontSize:'12px',color:'#888',cursor:'pointer',display:'flex',alignItems:'center',gap:'4px',background:photo?'#f0fdf4':'#fff'}}>
         {photo?'✅ 사진':'📷 사진'}
         <input type="file" accept="image/*" onChange={handlePhoto} style={{display:'none'}}/>
       </label>
       <button onClick={save} style={{padding:'8px 14px',background:editId?'#f59e0b':'#2563eb',color:'#fff',border:'none',borderRadius:'8px',fontSize:'12px',fontWeight:700,cursor:'pointer'}}>{editId?'수정':'등록'}</button>
-      {editId&&<button onClick={()=>{setEditId(null);setName('');setPoints('');setPhoto('')}} style={{padding:'8px 10px',background:'#e5e7eb',border:'none',borderRadius:'8px',fontSize:'12px',cursor:'pointer'}}>취소</button>}
+      {editId&&<button onClick={()=>{setEditId(null);setName('');setPoints('');setStock('');setPhoto('')}} style={{padding:'8px 10px',background:'#e5e7eb',border:'none',borderRadius:'8px',fontSize:'12px',cursor:'pointer'}}>취소</button>}
     </div>
     {products.length>0&&(
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))',gap:'8px'}}>
@@ -976,7 +979,10 @@ function ProductManager({products,setProducts}){
             )}
             <div style={{padding:'8px'}}>
               <div style={{fontSize:'11px',fontWeight:700,marginBottom:'2px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
-              <div style={{fontSize:'13px',fontWeight:800,color:'#f59e0b'}}>{p.points}P</div>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                <div style={{fontSize:'13px',fontWeight:800,color:'#f59e0b'}}>{p.points}P</div>
+                <div style={{fontSize:'10px',fontWeight:700,color:p.stock===0?'#ef4444':p.stock===-1||p.stock===undefined?'#22c55e':'#3b82f6'}}>{p.stock===0?'품절':p.stock===-1||p.stock===undefined?'∞':p.stock+'개'}</div>
+              </div>
               <div style={{display:'flex',gap:'4px',marginTop:'4px'}}>
                 <button onClick={()=>edit(p)} style={{flex:1,padding:'4px',background:'#e5e7eb',border:'none',borderRadius:'4px',fontSize:'10px',cursor:'pointer'}}>수정</button>
                 <button onClick={()=>del(p.id)} style={{flex:1,padding:'4px',background:'#fee2e2',color:'#b91c1c',border:'none',borderRadius:'4px',fontSize:'10px',cursor:'pointer'}}>삭제</button>
@@ -1002,109 +1008,6 @@ const ciApi={
     try{const r=await fetch(CI_GAS_URL,{method:'POST',body:JSON.stringify(body)});return await r.json();}catch(e){console.error('CI API post error:',e);return null;}
   }
 };
-
-// ===== Dice Game Component =====
-function DiceGame({personName,personDept,played,diceKey,entries,setEntries}){
-  const[dice1,setDice1]=useState(0);
-  const[dice2,setDice2]=useState(0);
-  const[rolling,setRolling]=useState(false);
-  const[result,setResult]=useState(null); // {sum, reward, msg}
-  const[hasPlayed,setHasPlayed]=useState(played);
-
-  const REWARDS={2:{points:10,msg:'🎉 더블1! 잭팟 10P!',color:'#fbbf24'},3:{points:3,msg:'🎲 3 나왔다! +3P',color:'#34d399'},7:{points:5,msg:'🍀 럭키세븐! +5P',color:'#60a5fa'},11:{points:3,msg:'🎲 11 나왔다! +3P',color:'#34d399'},12:{points:10,msg:'🎉 더블6! 잭팟 10P!',color:'#fbbf24'}};
-  const DOUBLES={1:5,2:3,3:2,4:2,5:3,6:5}; // 같은 눈 보너스
-
-  const rollDice=()=>{
-    if(hasPlayed||rolling)return;
-    setRolling(true);setResult(null);
-    let count=0;
-    const interval=setInterval(()=>{
-      setDice1(Math.floor(Math.random()*6)+1);
-      setDice2(Math.floor(Math.random()*6)+1);
-      count++;
-      if(count>=15){
-        clearInterval(interval);
-        const d1=Math.floor(Math.random()*6)+1;
-        const d2=Math.floor(Math.random()*6)+1;
-        setDice1(d1);setDice2(d2);
-        const sum=d1+d2;
-        let reward=0;let msg='';
-        if(d1===d2){
-          reward=DOUBLES[d1]||2;
-          msg=d1===1?'🎉 더블1! 잭팟 '+reward+'P!':d1===6?'🎉 더블6! 잭팟 '+reward+'P!':'✨ 더블! +'+reward+'P!';
-        }else if(sum===7){
-          reward=5;msg='🍀 럭키세븐! +5P';
-        }else{
-          reward=0;msg='😅 아쉽게 꽝! 내일 다시 도전!';
-        }
-        setResult({sum,reward,msg,d1,d2});
-        S.set(diceKey,true);
-        setHasPlayed(true);
-        setRolling(false);
-
-        // 포인트 적립은 결과를 보여준 후 지연 처리
-        if(reward>0){
-          setTimeout(()=>{
-            const now=kstToday();
-            const newEntry={id:Date.now().toString()+'_dice',name:personName,dept:personDept,category:'주사위게임',score:reward,date:now,memo:`주사위 [${d1}+${d2}=${sum}]`};
-            setEntries(prev=>[...prev,newEntry]);
-            ciApi.post({action:'addPoint',...newEntry});
-          },2500);
-        }
-      }
-    },80);
-  };
-
-  const DICE_FACE=(n)=>{
-    const dots={1:[[1,1]],2:[[0,2],[2,0]],3:[[0,2],[1,1],[2,0]],4:[[0,0],[0,2],[2,0],[2,2]],5:[[0,0],[0,2],[1,1],[2,0],[2,2]],6:[[0,0],[0,2],[1,0],[1,2],[2,0],[2,2]]};
-    return(<div style={{width:'64px',height:'64px',background:rolling?'#fff':'#fff',borderRadius:'12px',display:'grid',gridTemplateColumns:'repeat(3,1fr)',gridTemplateRows:'repeat(3,1fr)',padding:'10px',boxShadow:rolling?'0 0 20px rgba(139,92,246,.5)':'0 4px 12px rgba(0,0,0,.2)',transform:rolling?`rotate(${Math.random()*30-15}deg)`:'none',transition:'transform .08s'}}>
-      {[0,1,2].map(r=>[0,1,2].map(c=>{
-        const hasDot=n>0&&(dots[n]||[]).some(([dr,dc])=>dr===r&&dc===c);
-        return(<div key={r+'-'+c} style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
-          {hasDot&&<div style={{width:'10px',height:'10px',borderRadius:'50%',background:'#312e81'}}/>}
-        </div>);
-      }))}
-    </div>);
-  };
-
-  return(<div>
-    <div style={{fontSize:'24px',marginBottom:'8px'}}>🎲 주사위 포인트 게임</div>
-    <p style={{fontSize:'11px',color:'#a5b4fc',marginBottom:'16px'}}>더블 또는 럭키세븐(7)이 나오면 보너스!</p>
-
-    {/* Rules */}
-    <div style={{background:'rgba(255,255,255,.08)',borderRadius:'10px',padding:'10px',marginBottom:'16px',fontSize:'10px',color:'#c4b5fd',textAlign:'left',lineHeight:1.6}}>
-      🎯 럭키세븐(7): <span style={{color:'#60a5fa',fontWeight:700}}>+5P</span><br/>
-      🎲 더블: <span style={{color:'#34d399',fontWeight:700}}>+2~5P</span><br/>
-      🎉 더블1 / 더블6: <span style={{color:'#fbbf24',fontWeight:700}}>+5P 잭팟!</span><br/>
-      ⏰ 하루 1회 무료
-    </div>
-
-    {/* Dice */}
-    <div style={{display:'flex',justifyContent:'center',gap:'16px',marginBottom:'20px'}}>
-      {DICE_FACE(dice1||1)}
-      {DICE_FACE(dice2||1)}
-    </div>
-
-    {/* Result */}
-    {result&&(
-      <div className="pop-in" style={{marginBottom:'16px',padding:'12px',borderRadius:'12px',background:result.reward>0?'rgba(52,211,153,.15)':'rgba(255,255,255,.08)'}}>
-        <div style={{fontSize:'28px',fontWeight:900,marginBottom:'4px',color:result.reward>0?'#fbbf24':'#94a3b8'}}>{result.d1} + {result.d2} = {result.sum}</div>
-        <div style={{fontSize:'14px',fontWeight:700,color:result.reward>0?'#34d399':'#94a3b8'}}>{result.msg}</div>
-      </div>
-    )}
-
-    {/* Button */}
-    {!hasPlayed?(
-      <button onClick={rollDice} disabled={rolling} style={{width:'100%',padding:'14px',background:rolling?'rgba(255,255,255,.1)':'linear-gradient(135deg,#8b5cf6,#a855f7)',color:'#fff',border:'none',borderRadius:'12px',fontSize:'15px',fontWeight:800,cursor:rolling?'wait':'pointer',boxShadow:rolling?'none':'0 4px 16px rgba(139,92,246,.4)',transition:'all .2s'}}>
-        {rolling?'🎲 굴리는 중...':'🎲 주사위 굴리기!'}
-      </button>
-    ):(
-      <div style={{padding:'10px',background:'rgba(255,255,255,.05)',borderRadius:'10px',fontSize:'12px',color:'#94a3b8'}}>
-        ✅ 오늘의 게임을 이미 했습니다. 내일 다시 도전하세요!
-      </div>
-    )}
-  </div>);
-}
 
 function CIPointApp({onBack}){
   const curY=new Date().getFullYear();
@@ -1225,6 +1128,14 @@ function CIPointApp({onBack}){
     setExchangeHistory(prev=>prev.filter(ex=>ex.id!==h.id));
     // 포인트 환불
     setEntries(prev=>[...prev,{id:Date.now().toString(),name:h.name,dept:h.dept,category:'교환취소',score:h.points,date:now,memo:`교환취소: ${h.product}`}]);
+    // 재고 복구 (productId가 있고 무제한이 아닌 경우)
+    if(h.productId){
+      const pr=products.find(p=>String(p.id)===String(h.productId));
+      if(pr&&pr.stock!==-1&&pr.stock!==undefined){
+        setProducts(prev=>prev.map(p=>String(p.id)===String(h.productId)?{...p,stock:(p.stock||0)+1}:p));
+        ciApi.post({action:'updateProduct',id:h.productId,stock:(pr.stock||0)+1});
+      }
+    }
     ciApi.post({action:'cancelExchange',id:h.id});
   };
   // === Excel Import ===
@@ -1389,21 +1300,27 @@ function CIPointApp({onBack}){
     const[showCriteria,setShowCriteria]=useState(false);
     const[showAll,setShowAll]=useState(false);
     const[showShop,setShowShop]=useState(null); // person name for shop
-    const[showDice,setShowDice]=useState(null); // person name for dice game
     const selData=selPerson?rankings.find(r=>r.name===selPerson):null;
 
     const handleExchange=(product)=>{
       const person=rankings.find(r=>r.name===showShop);
       if(!person)return;
       if(person.total<product.points){alert('포인트가 부족합니다.');return;}
+      const inStock=product.stock===-1||product.stock===undefined||product.stock>0;
+      if(!inStock){alert('품절된 상품입니다.');return;}
       if(!confirm(`${person.name}님이 "${product.name}" (${product.points}P) 교환을 신청하시겠습니까?`))return;
       const now=kstToday();
       const newId=Date.now().toString();
       // 포인트 즉시 차감
       setEntries(prev=>[...prev,{id:newId+'_ex',name:person.name,dept:person.dept,category:'교환',score:-product.points,date:now,memo:`상품교환: ${product.name}`}]);
+      // 재고 차감 (무제한(-1)이 아닌 경우만)
+      if(product.stock!==-1&&product.stock!==undefined){
+        setProducts(prev=>prev.map(p=>p.id===product.id?{...p,stock:Math.max(0,(p.stock||0)-1)}:p));
+        ciApi.post({action:'updateProduct',id:product.id,stock:Math.max(0,(product.stock||0)-1)});
+      }
       // 신청 내역 추가
-      setExchangeHistory(prev=>[...prev,{id:newId,name:person.name,dept:person.dept,product:product.name,points:product.points,date:now,status:'신청'}]);
-      ciApi.post({action:'exchange',name:person.name,dept:person.dept,product:product.name,points:product.points}).then(res=>{
+      setExchangeHistory(prev=>[...prev,{id:newId,name:person.name,dept:person.dept,product:product.name,points:product.points,productId:product.id,date:now,status:'신청'}]);
+      ciApi.post({action:'exchange',name:person.name,dept:person.dept,product:product.name,points:product.points,productId:product.id}).then(res=>{
         if(res&&res.id)setExchangeHistory(prev=>prev.map(h=>h.id===newId?{...h,id:res.id}:h));
       });
       alert(`교환 신청 완료! 포인트가 차감되었습니다.\n관리자가 상품 지급 후 완료 처리합니다.`);
@@ -1546,9 +1463,6 @@ function CIPointApp({onBack}){
               <button onClick={()=>{setShowShop(selData.name);setSelPerson(null)}} style={{flex:1,padding:'10px',background:'linear-gradient(135deg,#f59e0b,#f97316)',color:'#fff',border:'none',borderRadius:'10px',fontSize:'13px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',boxShadow:'0 2px 8px rgba(245,158,11,.3)'}}>
                 <Icon name="Gift" size={16}/> 상품교환
               </button>
-              <button onClick={()=>{setShowDice(selData.name);setSelPerson(null)}} style={{flex:1,padding:'10px',background:'linear-gradient(135deg,#8b5cf6,#a855f7)',color:'#fff',border:'none',borderRadius:'10px',fontSize:'13px',fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:'6px',boxShadow:'0 2px 8px rgba(139,92,246,.3)'}}>
-                🎲 포인트 게임
-              </button>
             </div>
           </div>
         </div>
@@ -1579,8 +1493,11 @@ function CIPointApp({onBack}){
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
                   {products.map(pr=>{
                     const canAfford=person.total>=pr.points;
+                    const inStock=pr.stock===-1||pr.stock===undefined||pr.stock>0;
+                    const canBuy=canAfford&&inStock;
                     return(
-                      <div key={pr.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden',opacity:canAfford?1:0.5}}>
+                      <div key={pr.id} style={{background:'#fff',borderRadius:'12px',border:'1px solid #e5e7eb',overflow:'hidden',opacity:canBuy?1:0.5,position:'relative'}}>
+                        {!inStock&&<div style={{position:'absolute',top:'8px',right:'8px',background:'#ef4444',color:'#fff',fontSize:'10px',fontWeight:800,padding:'2px 8px',borderRadius:'4px',zIndex:1}}>품절</div>}
                         {pr.photo?(
                           <div style={{width:'100%',height:'100px',overflow:'hidden',background:'#f3f4f6'}}>
                             <img src={pr.photo} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>{e.target.style.display='none'}}/>
@@ -1590,9 +1507,12 @@ function CIPointApp({onBack}){
                         )}
                         <div style={{padding:'8px'}}>
                           <div style={{fontSize:'12px',fontWeight:700,marginBottom:'4px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{pr.name}</div>
-                          <div style={{fontSize:'14px',fontWeight:800,color:'#f59e0b',marginBottom:'6px'}}>{pr.points}P</div>
-                          <button onClick={()=>handleExchange(pr)} disabled={!canAfford} style={{width:'100%',padding:'6px',background:canAfford?'linear-gradient(135deg,#f59e0b,#f97316)':'#e5e7eb',color:canAfford?'#fff':'#999',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:700,cursor:canAfford?'pointer':'not-allowed'}}>
-                            {canAfford?'교환하기':'포인트 부족'}
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'6px'}}>
+                            <div style={{fontSize:'14px',fontWeight:800,color:'#f59e0b'}}>{pr.points}P</div>
+                            <div style={{fontSize:'10px',fontWeight:700,color:!inStock?'#ef4444':pr.stock===-1||pr.stock===undefined?'#22c55e':'#3b82f6'}}>{!inStock?'품절':pr.stock===-1||pr.stock===undefined?'재고 ∞':pr.stock+'개 남음'}</div>
+                          </div>
+                          <button onClick={()=>handleExchange(pr)} disabled={!canBuy} style={{width:'100%',padding:'6px',background:canBuy?'linear-gradient(135deg,#f59e0b,#f97316)':'#e5e7eb',color:canBuy?'#fff':'#999',border:'none',borderRadius:'6px',fontSize:'11px',fontWeight:700,cursor:canBuy?'pointer':'not-allowed'}}>
+                            {!inStock?'품절':canAfford?'교환하기':'포인트 부족'}
                           </button>
                         </div>
                       </div>
@@ -1606,23 +1526,6 @@ function CIPointApp({onBack}){
       })()}
 
       {/* Dice Game Modal */}
-      {showDice&&(()=>{
-        const person=rankings.find(r=>r.name===showDice);
-        if(!person)return null;
-        const DICE_KEY='ci_dice_'+showDice+'_'+kstToday();
-        const played=S.get(DICE_KEY,false);
-        return(
-        <div onClick={()=>setShowDice(null)} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',padding:'16px'}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'linear-gradient(135deg,#1e1b4b,#312e81)',borderRadius:'20px',maxWidth:'360px',width:'100%',padding:'24px',boxShadow:'0 20px 60px rgba(0,0,0,.4)',color:'#fff',textAlign:'center'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
-              <div style={{fontSize:'13px',fontWeight:600,color:'#c4b5fd'}}>{person.name}님의 게임</div>
-              <button onClick={()=>setShowDice(null)} style={{background:'rgba(255,255,255,.1)',border:'none',cursor:'pointer',width:'28px',height:'28px',borderRadius:'50%',color:'#fff',fontSize:'16px',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button>
-            </div>
-            <DiceGame personName={person.name} personDept={person.dept} played={played} diceKey={DICE_KEY} entries={entries} setEntries={setEntries}/>
-          </div>
-        </div>);
-      })()}
-
       {top30.length===0?(
         <div style={{textAlign:'center',padding:'60px 20px',color:'#999'}}>
           <div style={{fontSize:'48px',marginBottom:'12px'}}>📊</div>
